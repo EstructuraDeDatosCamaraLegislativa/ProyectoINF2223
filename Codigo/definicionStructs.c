@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-// Estructura para Proyecto de Ley
 struct ProyectoDeLey {
     int id;
     char nombre[100];
@@ -11,9 +6,9 @@ struct ProyectoDeLey {
 
 // Estructura para Iniciativa Legislativa
 struct IniciativaLegislativa {
-    struct ProyectoDeLey *proyecto; // Apunta al proyecto de ley propuesto
-    char actor[50];                 // Presidente, Parlamentario, Ciudadanía
-    struct IniciativaLegislativa *siguiente;  // Lista enlazada para posibles múltiples iniciativas
+    struct ProyectoDeLey *proyecto;  // Apunta al proyecto de ley propuesto.
+    char actor[50];                  // Presidente, Parlamentario, Diputado, etc
+    struct IniciativaLegislativa *siguiente;  // Lista enlazada para múltiples iniciativas
 };
 
 // Estructura para Votos en las cámaras
@@ -22,38 +17,30 @@ struct Votos {
     int enContra;
 };
 
-// Estructura para Modificaciones (enmiendas)
-struct Modificacion {
-    char descripcion[255];
-    struct Modificacion *siguiente;  // Lista enlazada para las enmiendas
-};
-
-// Estructura para Cámara de Origen
+// Estructura para Cámara de Origen 
 struct CamaraOrigen {
     struct ProyectoDeLey *proyecto;    // Referencia al proyecto de ley en esta cámara
-    struct Votos resultadosVotacion;   // Estructura estática para almacenar los votos
-    struct Modificacion *modificaciones;  // Lista enlazada de enmiendas propuestas
+    struct Votos resultadosVotacion;   // Resultado de la votación en Cámara de Origen
 };
 
 // Estructura para Cámara de Revisión
 struct CamaraRevision {
-    struct ProyectoDeLey *proyecto;     // Referencia al proyecto en revisión
-    struct Votos resultadosVotacion;    // Resultado de la votación en la cámara revisora
-    struct Modificacion *modificaciones;  // Lista enlazada para nuevas enmiendas
+    struct ProyectoDeLey *proyecto;    // Referencia al proyecto de ley aprobado en Cámara de Origen
+    struct Votos resultadosVotacion;   // Resultado de la votación en Cámara de Revisión
 };
 
-// Estructura para Comisión Mixta
+// Estructura para Comisión Mixta (donde sí pueden darse modificaciones)
 struct ComisionMixta {
     struct ProyectoDeLey *proyecto;       // Proyecto en discusión
     int acuerdos;                         // Indica si se alcanzó un acuerdo
-    struct Modificacion *modificaciones;  // Lista enlazada de enmiendas adicionales
+    struct Modificacion *modificaciones;  // Lista doblemente enlazada de las modificaciones propuestas.
 };
 
 // Estructura para Promulgación y Veto Presidencial
 struct Promulgacion {
     struct ProyectoDeLey *proyecto;       // Proyecto de ley que llega a esta etapa
-    int veto;                             // 1 si hay veto presidencial, 0 si no lo hay
-    struct Promulgacion *siguiente;       // Lista enlazada por si hay más de un veto
+    int veto;                             // 1 si hay veto parcial presidencial, 0 si no lo hay, 2 veto total.
+    struct Promulgacion *siguiente;       // Lista circular (si hay más de uno)
 };
 
 // Estructura para Publicación y Entrada en Vigencia
@@ -66,11 +53,18 @@ struct Publicacion {
 // Nodo del Árbol Binario de Búsqueda (ABB) para Control Constitucional
 struct NodoABB {
     struct ProyectoDeLey *proyecto;       // Proyecto que pasa por control constitucional
-    struct NodoABB *izquierda;            // Subárbol izquierdo (Árbol Binario de Búsqueda)
-    struct NodoABB *derecha;              // Subárbol derecho
+    struct NodoABB *izquierda;            // Subárbol izquierdo (proyectos con ID menor)
+    struct NodoABB *derecha;              // Subárbol derecho (proyectos con ID mayor)
 };
 
 // Estructura para Control Constitucional (ABB)
 struct ControlConstitucional {
-    struct NodoABB *raiz;    // Árbol Binario de Búsqueda de proyectos en revisión constitucional
+    struct NodoABB *raiz;    // La raíz del árbol binario de búsqueda
+};
+
+// Estructura para Modificaciones como lista doblemente enlazada
+struct Modificacion {
+    char descripcion[255];
+    struct Modificacion *siguiente;  // Puntero a la siguiente modificación (hacia adelante)
+    struct Modificacion *anterior;   // Puntero a la modificación anterior (hacia atrás)
 };
