@@ -105,15 +105,6 @@ struct camara {
 };
 
 
-
-
-
-
-
-
-
-
-
 // Estructura para Votos en las cámaras
 struct Votos {
     int aFavor;
