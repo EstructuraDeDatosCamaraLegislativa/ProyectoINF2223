@@ -68,3 +68,86 @@ struct Modificacion {
     struct Modificacion *siguiente;  // Puntero a la siguiente modificación (hacia adelante)
     struct Modificacion *anterior;   // Puntero a la modificación anterior (hacia atrás)
 };
+
+
+
+
+
+
+
+2.0
+// Estructura del proyecto de ley 
+struct proyecto_ley {
+    char titulo[100];           // Título del proyecto de ley
+    char descripcion[500];      // Breve descripción del proyecto de ley
+    char actor[100];            // Actor que presenta la iniciativa (Presidente, Parlamentario, ciudadania)
+    int numFirmas;              // Número de firmas requeridas (si es iniciativa popular)
+};
+
+// Estructura para los votos
+struct votos {
+    int aFavor;     // Número de votos a favor
+    int enContra;  // Número de votos en contra
+};
+
+// Estructura para las comisiones en cada cámara
+struct comision {
+    char nombre[100];              // Nombre de la comisión (Ej: Comisión de Hacienda)
+    struct comision *siguiente;    // Puntero a la siguiente comisión (lista simple)
+};
+
+// Estructura única para ambas cámaras (Cámara de Origen y Cámara Revisora)
+struct camara {
+    char tipo_camara[50];          // Tipo de cámara: "Cámara de Origen" o "Cámara Revisora"
+    char nombre_camara[50];        // Nombre de la cámara: "Cámara de Diputados" o "Senado"
+    struct comision *comisiones;   // Lista de comisiones que analizan el proyecto
+    struct votos resultado_votacion; // Resultado de la votación
+};
+
+
+
+
+
+
+
+
+
+
+
+// Estructura para Votos en las cámaras
+struct Votos {
+    int aFavor;
+    int enContra;
+};
+
+// Estructura de las cámaras origen y revision
+struct Camara {
+    char tipoCamara[20];  // "Senado" o "Cámara de Diputados"
+    struct ProyectoDeLey *proyecto;    // Referencia al proyecto de ley en esta cámara
+    struct Votos resultadosVotacion; // Resultado de la votación en Cámara de Origen
+    struct Comision *parlamentarios; // Lista de parlamentarios
+};
+
+// Estructura para la comision de senado o diputado
+struct Comision {
+    char nombre[50];
+    struct Comision *siguiente; // Lista simplemente enlazada para los parlamentarios
+    int voto; // 1: a favor, 0: en contra
+};
+
+// Estructura para Comisión Mixta
+struct ComisionMixta {
+    struct ProyectoDeLey *proyecto;       // Proyecto en discusión
+    int acuerdos;                         // Indica si se alcanzó un acuerdo 1: Sí, 0: No
+    struct Comision *parlamentarios; // Lista de parlamentarios
+};
+
+struct promulgacion_veto {
+    int promulgado;  // 1: Sí, 0: No
+    char fechaPromulgacion[11];
+    int hayVeto;     // 1: Sí, 0: No
+    char tipoVeto[20];  // "Total" o "Parcial"
+};
+
+
+    
