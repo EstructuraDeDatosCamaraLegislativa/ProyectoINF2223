@@ -113,6 +113,10 @@ struct NodoABB {
     struct NodoABB* derecha;
 };
 
+
+
+// IMPLEMENTAR FUNCIONES ABAJO:
+
 // Funciones básicas para la gestión de ListaParlamentarios
 struct ListaParlamentarios* crearListaParlamentarios() {
     struct ListaParlamentarios* lista = (struct ListaParlamentarios*)malloc(sizeof(struct ListaParlamentarios));
