@@ -35,7 +35,6 @@ struct Parlamentario {
     char nombre[100];                   /* Nombre del parlamentario */
     char partido[50];                   /* Partido político del parlamentario */
     struct Parlamentario *siguiente;    /* Puntero al siguiente parlamentario en la lista */
-    struct Parlamentario *anterior;     /* Puntero al anterior parlamentario en la lista */
 };
 
 /* Estructura para representar una cámara legislativa (Diputados o Senado) */
