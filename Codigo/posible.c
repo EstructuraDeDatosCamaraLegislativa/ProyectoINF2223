@@ -15,6 +15,7 @@ struct ProyectoLey {
     char titulo[100];                   /* Título del proyecto de ley */
     char descripcion[500];              /* Breve descripción del proyecto */
     char actor[100];                    /* Actor que presenta la iniciativa */
+    char estado[100];                   /* Estado: Tramitacion - Promulgacion - Publicado */
     int numFirmas;                      /* Número de firmas requeridas (si es iniciativa popular) */
     int urgencia;                       /* Nivel de urgencia (1: baja, 2: media, 3: alta) */
     char fechaIngreso[11];              /* Fecha de ingreso del proyecto (DD-MM-YYYY) */
