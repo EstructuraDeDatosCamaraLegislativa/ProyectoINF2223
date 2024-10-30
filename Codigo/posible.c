@@ -29,28 +29,30 @@ struct NodoArbol {
     struct ProyectoLey *proyecto;       /* Puntero al proyecto de ley */
 };
 
-/* Estructura para representar un parlamentario */
+/* Estructura para representar a los parlamentarios */
 struct Parlamentario { 
     int ID;                             /* ID único del parlamentario */
     char nombre[100];                   /* Nombre del parlamentario */
     char partido[50];                   /* Partido político del parlamentario */
     struct Parlamentario *siguiente;    /* Puntero al siguiente parlamentario en la lista */
+    struct Parlamentario *anterior;     /* Puntero al anterior parlamentario en la lista */
 };
 
 /* Estructura para representar una cámara legislativa (Diputados o Senado) */
 struct CamaraLegislativa {
-    char tipoCamara[50];                /* Tipo de cámara (Diputados o Senado) */
-    char nombreCamara[50];              /* Nombre de la cámara */
-    struct ProyectoLey *proyectoActual; /* Proyecto actualmente en discusión */
-    struct Parlamentario *parlamentarios; /* Lista de parlamentarios en esta cámara */
+    char tipoCamara[50];                        /* Tipo de cámara (Diputados o Senado) */
+    char nombreCamara[50];                      /* Nombre de la cámara */
+    struct ProyectoLey *proyectoActual;         /* Proyecto actualmente en discusión */
+    struct VotacionParlamentarios *votacion;    /* Resultado de votación en la comisión */
+    struct Parlamentario *parlamentarios;       /* Lista de parlamentarios en esta cámara */
 };
 
 /* Estructura para una comisión mixta que discute un proyecto de ley */
 struct ComisionMixta {
-    char nombre[100];                   /* Nombre de la comisión */
-    struct ProyectoLey *proyecto;       /* Proyecto en discusión en la comisión */
-    struct VotacionParlamentarios *votacion; /* Resultado de votación en la comisión */
-    struct Parlamentario *parlamentarios; /* Lista de parlamentarios en la comisión */
+    char nombre[100];                         /* Nombre de la comisión */
+    struct ProyectoLey *proyecto;             /* Proyecto en discusión en la comisión */
+    struct VotacionParlamentarios *votacion;  /* Resultado de votación en la comisión */
+    struct Parlamentario *parlamentarios;     /* Lista de parlamentarios en la comisión */
 };
 
 /* Estructura que almacena detalles de publicación de una ley */
