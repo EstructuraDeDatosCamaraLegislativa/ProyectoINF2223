@@ -60,7 +60,7 @@ struct PublicacionEntradaVigencia {
     char nombreLey[100];                /* Nombre de la ley */
     char fechaPublicacion[11];          /* Fecha de publicación */
     int vigenciaInmediata;              /* 1: inmediata, 0: con plazo */
-    struct PublicacionEntradaVigencia *siguiente, *anterior; // Puntero al siguiente y anterior elemento en la lista
+    struct PublicacionEntradaVigencia *siguiente, *anterior; /* Puntero al siguiente y anterior elemento en la lista */
 };
 
 /* Estructura principal que representa el proceso legislativo */
