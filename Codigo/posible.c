@@ -82,6 +82,7 @@ void agregarProyecto(struct ProcesoLegislativo *proceso) {
     int ID, numFirmas, urgencia;
     char titulo[100], descripcion[500], actor[100], estado[100], fechaIngreso[11];
 
+    /* Se ingresan los datos para el proyecto de ley y sus respectivos subcomponentes. */
     printf("Ingrese el ID del proyecto de ley: ");
     scanf("%d", &ID);
     getchar(); // Limpiar el salto de línea residual
