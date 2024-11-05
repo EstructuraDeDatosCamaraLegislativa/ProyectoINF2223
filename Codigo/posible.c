@@ -393,15 +393,42 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
 
     printf("Resultado en la Cámara de %s (Revisión): %s\n", camaraRevision->tipoCamara, resultadoRevision);
 
-    // Determinar el resultado final
+    // Determinar el resultado final considerando el desacuerdo cuando una cámara aprueba y la otra rechaza
     if (strcmp(resultadoOrigen, "Aprobado") == 0 && strcmp(resultadoRevision, "Aprobado") == 0) {
         printf("Proyecto aprobado en ambas cámaras.\n");
-    } else if (strcmp(resultadoOrigen, "Rechazado") == 0 || strcmp(resultadoRevision, "Rechazado") == 0) {
-        printf("Proyecto rechazado en alguna de las cámaras.\n");
-    } else {
+    } else if (strcmp(resultadoOrigen, "Rechazado") == 0 && strcmp(resultadoRevision, "Rechazado") == 0) {
+        printf("Proyecto rechazado en ambas cámaras.\n");
+    } else if ((strcmp(resultadoOrigen, "Aprobado") == 0 && strcmp(resultadoRevision, "Rechazado") == 0) || (strcmp(resultadoOrigen, "Rechazado") == 0 && strcmp(resultadoRevision, "Aprobado") == 0)) {
         printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+
+    // Configuración y votación en la comisión mixta en caso de desacuerdo
+    struct ComisionMixta *comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta));
+    if (comision == NULL) {
+        printf("Error al asignar memoria para la comisión mixta.\n");
+        return;
     }
+
+    strcpy(comision->nombre, "Comisión Mixta de Resolución de Desacuerdos");
+    comision->proyecto = camaraOrigen->proyectoActual;
+
+    // Ingreso de votos para la comisión mixta
+    printf("Iniciar votación en la Comisión Mixta:\n");
+    ingresarVotos(comision->proyecto, "Comisión Mixta");
+    const char *resultadoComision = resultadoVotacion(comision->proyecto->votacion);
+
+    printf("Resultado en la Comisión Mixta: %s\n", resultadoComision);
+
+    // Decisión final basada en el resultado de la comisión
+    if (strcmp(resultadoComision, "Aprobado") == 0) {
+        printf("Proyecto aprobado por la Comisión Mixta.\n");
+    } else if (strcmp(resultadoComision, "Rechazado") == 0) {
+        printf("Proyecto rechazado por la Comisión Mixta.\n");
+    } else {
+        printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
+    }
+
 }
+
 
 /* Modificar el menú principal para incluir la opción de configuración y votación */
 void menu() {
