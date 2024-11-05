@@ -382,55 +382,74 @@ void modificarProyecto(struct ProcesoLegislativo *proceso) {
     }
 }
 
-/* Función para encontrar el nodo con el valor mínimo en un árbol binario */
+// Función para encontrar el nodo mínimo en el subárbol derecho
 struct NodoArbol* encontrarMinimo(struct NodoArbol* nodo) {
-    struct NodoArbol* actual = nodo; // Puntero para recorrer el árbol
-    while (actual != NULL && actual->izq != NULL) { // Buscar hacia la izquierda
-        actual = actual->izq; // Avanzar al hijo izquierdo
+    struct NodoArbol* actual = nodo; // Se inicializa un puntero para recorrer el nodo
+
+    // Recorre hacia la izquierda hasta encontrar el nodo más pequeño
+    while (actual != NULL && actual->izq != NULL) {
+        actual = actual->izq; // Avanza al hijo izquierdo
     }
-    return actual; // Devolver el nodo mínimo encontrado
+    return actual; // Retorna el nodo mínimo encontrado
 }
 
-/* Función para eliminar un nodo con un proyecto específico del árbol binario */
-struct NodoArbol* eliminarNodoProyecto(struct NodoArbol* raiz, int ID) {
-    struct NodoArbol* temp;  // Puntero temporal para el nodo a eliminar
-    
-    if (raiz == NULL) { // Si el árbol está vacío
-        return raiz; // Retornar NULL
+// Función para eliminar un nodo con un proyecto específico del árbol binario
+struct NodoArbol* eliminarNodoProyecto(struct NodoArbol* raiz, int ID, int *eliminado) {
+    struct NodoArbol* temp; // Declaración de un puntero temporal para manejar nodos
+
+    // Verifica si la raíz es nula, lo que significa que no se encontró el proyecto
+    if (raiz == NULL) {
+        *eliminado = 0; // Indica que no se encontró el proyecto
+        return raiz; // Retorna nulo
     }
-    
-    if (ID < raiz->proyecto->ID) { // Buscar en el subárbol izquierdo
-        raiz->izq = eliminarNodoProyecto(raiz->izq, ID);
-    } else if (ID > raiz->proyecto->ID) { // Buscar en el subárbol derecho
-        raiz->der = eliminarNodoProyecto(raiz->der, ID);
+
+    // Compara el ID para decidir si buscar en el subárbol izquierdo o derecho
+    if (ID < raiz->proyecto->ID) {
+        raiz->izq = eliminarNodoProyecto(raiz->izq, ID, eliminado); // Busca en el subárbol izquierdo
+    } else if (ID > raiz->proyecto->ID) {
+        raiz->der = eliminarNodoProyecto(raiz->der, ID, eliminado); // Busca en el subárbol derecho
     } else {
-        // Caso cuando encontramos el nodo a eliminar
-        if (raiz->izq == NULL) { // Si no hay hijo izquierdo
-            temp = raiz->der; // Guardar el hijo derecho
-            free(raiz);  // Liberar el nodo eliminado
-            return temp; // Retornar el hijo derecho
-        } else if (raiz->der == NULL) { // Si no hay hijo derecho
-            temp = raiz->izq; // Guardar el hijo izquierdo
-            free(raiz);  // Liberar el nodo eliminado
-            return temp; // Retornar el hijo izquierdo
+        // Proyecto encontrado
+        *eliminado = 1; // Marca que se encontró y se debe eliminar
+
+        // Caso cuando el nodo tiene un solo hijo o ningún hijo
+        if (raiz->izq == NULL) {
+            temp = raiz->der; // Asigna el hijo derecho
+            free(raiz); // Libera el nodo actual
+            return temp; // Retorna el hijo derecho
+        } else if (raiz->der == NULL) {
+            temp = raiz->izq; // Asigna el hijo izquierdo
+            free(raiz); // Libera el nodo actual
+            return temp; // Retorna el hijo izquierdo
         }
 
-        // Nodo con dos hijos: buscar el sucesor en orden (mínimo en el subárbol derecho)
-        temp = encontrarMinimo(raiz->der); // Encontrar el mínimo en el subárbol derecho
-        raiz->proyecto = temp->proyecto; // Reemplazar el proyecto del nodo por el del sucesor
-        raiz->der = eliminarNodoProyecto(raiz->der, temp->proyecto->ID); // Eliminar el sucesor
+        // Nodo con dos hijos: buscar el sucesor en orden
+        temp = encontrarMinimo(raiz->der); // Encuentra el nodo mínimo en el subárbol derecho
+        raiz->proyecto = temp->proyecto; // Copia el proyecto del nodo mínimo al nodo actual
+        raiz->der = eliminarNodoProyecto(raiz->der, temp->proyecto->ID, eliminado); // Elimina el sucesor encontrado
     }
 
-    return raiz; // Retornar la raíz del árbol modificado
+    return raiz; // Retorna la raíz del árbol (o subárbol) modificado
 }
 
-/* Función para eliminar un proyecto */
+// Función para eliminar un proyecto en el proceso legislativo
 void eliminarProyecto(struct ProcesoLegislativo *proceso) {
-    int ID; // Variable para el ID del proyecto a eliminar
+    int ID; // Variable para almacenar el ID del proyecto a eliminar
+    int eliminado = 0; // Indicador de si el proyecto fue eliminado o no
+
+    // Solicita al usuario el ID del proyecto a eliminar
     printf("Ingrese el ID del proyecto a eliminar: ");
-    scanf("%d", &ID); // Leer el ID del proyecto
-    proceso->Proyectos = eliminarNodoProyecto(proceso->Proyectos, ID); // Eliminar el proyecto del árbol
-    printf("Proyecto eliminado exitosamente.\n"); // Mensaje de éxito
+    scanf("%d", &ID);
+
+    // Intenta eliminar el proyecto llamando a la función eliminarNodoProyecto
+    proceso->Proyectos = eliminarNodoProyecto(proceso->Proyectos, ID, &eliminado);
+
+    // Muestra un mensaje basado en si se logró eliminar el proyecto o no
+    if (eliminado) {
+        printf("Proyecto de ley eliminado exitosamente.\n");
+    } else {
+        printf("Proyecto de ley no existente.\n");
+    }
 }
 
 /* Función para recorrer el árbol en orden (INORDEN) y mostrar proyectos */
