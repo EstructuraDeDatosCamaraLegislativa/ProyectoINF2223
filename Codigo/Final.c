@@ -82,13 +82,18 @@ struct NodoArbol *insertarProyecto(struct NodoArbol *raiz, struct ProyectoLey *p
     if (raiz == NULL) { // Si la raíz es NULL, hemos encontrado la posición de inserción
         return crearNodoArbol(proyecto); // Crear y devolver un nuevo nodo
     }
+
     if (proyecto->ID < raiz->proyecto->ID) { // Si el ID del proyecto es menor, ir a la izquierda
         raiz->izq = insertarProyecto(raiz->izq, proyecto); // Insertar recursivamente en la subárbol izquierdo
-    } else if (proyecto->ID > raiz->proyecto->ID) { // Si el ID del proyecto es mayor, ir a la derecha
-        raiz->der = insertarProyecto(raiz->der, proyecto); // Insertar recursivamente en la subárbol derecho
     } else {
-        printf("Proyecto con ID %d ya existe.\n", proyecto->ID); // Mensaje si el proyecto ya existe
+        if (proyecto->ID > raiz->proyecto->ID) { // Si el ID del proyecto es mayor, ir a la derecha
+            raiz->der = insertarProyecto(raiz->der, proyecto); // Insertar recursivamente en la subárbol derecho
+        } else { // Si es igual
+            printf("Proyecto con ID %d ya existe.\n", proyecto->ID); // Mensaje si el proyecto ya existe
+            return raiz; // Retornar la raíz sin cambios
+        }
     }
+    
     return raiz; // Devolver la raíz del árbol
 }
 
@@ -182,10 +187,12 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     while (actual != NULL) {
         if (actual->voto == 1) {
             aFavor++; // Incrementar si el voto es a favor
-        } else if (actual->voto == 0) {
-            enContra++; // Incrementar si el voto es en contra
         } else {
-            abstenciones++; // Incrementar si es abstención
+            if (actual->voto == 0) {
+                enContra++; // Incrementar si el voto es en contra
+            } else {
+                abstenciones++; // Incrementar si es abstención
+            }
         }
         actual = actual->siguiente; // Avanzar al siguiente voto
     }
@@ -193,12 +200,16 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     // Determinar el resultado
     if (aFavor > enContra) {
         return "Aprobado"; // Mayoría a favor
-    } else if (enContra > aFavor) {
-        return "Rechazado"; // Mayoría en contra
-    } else {
-        return "Desacuerdo"; // Empate
     }
+    
+    if (enContra > aFavor) {
+        return "Rechazado"; // Mayoría en contra
+    }
+
+    // Si no se cumple ninguna de las condiciones anteriores, es un empate
+    return "Desacuerdo"; // Empate
 }
+
 
 /* Función para seleccionar la cámara de origen y asignar la revisión */
 struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
@@ -215,16 +226,19 @@ struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *pro
         *nombreCamaraOrigen = "Diputados";    // Nombre de la cámara de origen
         *nombreCamaraRevision = "Senado";     // Nombre de la cámara de revisión
         return proceso->camaras[0];           // Cámara de Diputados como origen
-    } else if (tipoOrigen == 2) {
+    }
+
+    if (tipoOrigen == 2) {
         *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
         *nombreCamaraOrigen = "Senado";       // Nombre de la cámara de origen
         *nombreCamaraRevision = "Diputados";  // Nombre de la cámara de revisión
         return proceso->camaras[1];           // Cámara de Senado como origen
-    } else {
-        printf("Selección inválida.\n"); // Mensaje si la selección no es válida
-        return NULL; // Retornar NULL en caso de error
     }
+
+    printf("Selección inválida.\n"); // Mensaje si la selección no es válida
+    return NULL; // Retornar NULL en caso de error
 }
+
 
 /* Función para realizar la votación en una cámara y almacenar el resultado */
 void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, int esDiputados) {
@@ -253,12 +267,15 @@ void manejarDesacuerdo(struct ComisionMixta *comision) {
     // Determinar el resultado de la comisión
     if (strcmp(resultadoComision, "Aprobado") == 0) {
         printf("Proyecto aprobado por la Comisión Mixta.\n");
-    } else if (strcmp(resultadoComision, "Rechazado") == 0) {
-        printf("Proyecto rechazado por la Comisión Mixta.\n");
     } else {
-        printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
+        if (strcmp(resultadoComision, "Rechazado") == 0) {
+            printf("Proyecto rechazado por la Comisión Mixta.\n");
+        } else {
+            printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
+        }
     }
 }
+
 
 /* Función principal para configurar y realizar la votación */
 void configurarYVotar(struct ProcesoLegislativo *proceso) {
@@ -283,22 +300,35 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
     realizarVotacionCamara(camaraRevision, resultadoRevision, strcmp(nombreCamaraRevision, "Diputados") == 0 ? 1 : 0); // Realizar la votación
 
     // Evaluar los resultados de las votaciones
-    if (strcmp(resultadoOrigen, "Aprobado") == 0 && strcmp(resultadoRevision, "Aprobado") == 0) {
-        printf("Proyecto aprobado en ambas cámaras.\n");
-    } else if (strcmp(resultadoOrigen, "Rechazado") == 0 && strcmp(resultadoRevision, "Rechazado") == 0) {
-        printf("Proyecto rechazado en ambas cámaras.\n");
-    } else if ((strcmp(resultadoOrigen, "Aprobado") == 0 && strcmp(resultadoRevision, "Rechazado") == 0) || 
-               (strcmp(resultadoOrigen, "Rechazado") == 0 && strcmp(resultadoRevision, "Aprobado") == 0)) {
-        printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
-        
-        comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
-        if (comision != NULL) {
-            manejarDesacuerdo(comision); // Manejar el desacuerdo
+    if (strcmp(resultadoOrigen, "Aprobado") == 0) {
+        if (strcmp(resultadoRevision, "Aprobado") == 0) {
+            printf("Proyecto aprobado en ambas cámaras.\n");
         } else {
-            printf("Error al asignar memoria para la comisión mixta.\n"); // Mensaje de error
+            printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+            comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
+            if (comision != NULL) {
+                manejarDesacuerdo(comision); // Manejar el desacuerdo
+            } else {
+                printf("Error al asignar memoria para la comisión mixta.\n"); // Mensaje de error
+            }
+        }
+    } else {
+        if (strcmp(resultadoOrigen, "Rechazado") == 0) {
+            if (strcmp(resultadoRevision, "Rechazado") == 0) {
+                printf("Proyecto rechazado en ambas cámaras.\n");
+            } else {
+                printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+                comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
+                if (comision != NULL) {
+                    manejarDesacuerdo(comision); // Manejar el desacuerdo
+                } else {
+                    printf("Error al asignar memoria para la comisión mixta.\n"); // Mensaje de error
+                }
+            }
         }
     }
 }
+
 
 /* Función para buscar un proyecto en el árbol por ID */
 struct ProyectoLey* buscarProyectoPorID(struct NodoArbol* nodo, int ID) {
@@ -406,31 +436,33 @@ struct NodoArbol* eliminarNodoProyecto(struct NodoArbol* raiz, int ID, int *elim
     // Compara el ID para decidir si buscar en el subárbol izquierdo o derecho
     if (ID < raiz->proyecto->ID) {
         raiz->izq = eliminarNodoProyecto(raiz->izq, ID, eliminado); // Busca en el subárbol izquierdo
-    } else if (ID > raiz->proyecto->ID) {
-        raiz->der = eliminarNodoProyecto(raiz->der, ID, eliminado); // Busca en el subárbol derecho
     } else {
-        // Proyecto encontrado
-        *eliminado = 1; // Marca que se encontró y se debe eliminar
+        if (ID > raiz->proyecto->ID) {
+            raiz->der = eliminarNodoProyecto(raiz->der, ID, eliminado); // Busca en el subárbol derecho
+        } else {
+            // Proyecto encontrado
+            *eliminado = 1; // Marca que se encontró y se debe eliminar
 
-        // Caso cuando el nodo tiene un solo hijo o ningún hijo
-        if (raiz->izq == NULL) {
-            temp = raiz->der; // Asigna el hijo derecho
-            free(raiz); // Libera el nodo actual
-            return temp; // Retorna el hijo derecho
-        } else if (raiz->der == NULL) {
-            temp = raiz->izq; // Asigna el hijo izquierdo
-            free(raiz); // Libera el nodo actual
-            return temp; // Retorna el hijo izquierdo
+            // Caso cuando el nodo tiene un solo hijo o ningún hijo
+            if (raiz->izq == NULL) {
+                temp = raiz->der; // Asigna el hijo derecho
+                return temp; // Retorna el hijo derecho
+            }
+            if (raiz->der == NULL) {
+                temp = raiz->izq; // Asigna el hijo izquierdo
+                return temp; // Retorna el hijo izquierdo
+            }
+
+            // Nodo con dos hijos: buscar el sucesor en orden
+            temp = encontrarMinimo(raiz->der); // Encuentra el nodo mínimo en el subárbol derecho
+            raiz->proyecto = temp->proyecto; // Copia el proyecto del nodo mínimo al nodo actual
+            raiz->der = eliminarNodoProyecto(raiz->der, temp->proyecto->ID, eliminado); // Elimina el sucesor encontrado
         }
-
-        // Nodo con dos hijos: buscar el sucesor en orden
-        temp = encontrarMinimo(raiz->der); // Encuentra el nodo mínimo en el subárbol derecho
-        raiz->proyecto = temp->proyecto; // Copia el proyecto del nodo mínimo al nodo actual
-        raiz->der = eliminarNodoProyecto(raiz->der, temp->proyecto->ID, eliminado); // Elimina el sucesor encontrado
     }
 
     return raiz; // Retorna la raíz del árbol (o subárbol) modificado
 }
+
 
 // Función para eliminar un proyecto en el proceso legislativo
 void eliminarProyecto(struct ProcesoLegislativo *proceso) {
@@ -492,42 +524,54 @@ void menu() {
 void procesarOpcion(int opcion, struct ProcesoLegislativo *proceso) {
     if (opcion == 1) {
         agregarProyecto(proceso); // Agregar un nuevo proyecto
-    } else if (opcion == 2) {
+    } 
+    if (opcion == 2) {
         // Solo permitir configurar cámaras y votar si existe un proyecto actual
         if (proceso->camaras[0] && proceso->camaras[0]->proyectoActual != NULL) {
             configurarYVotar(proceso); // Configurar cámaras y realizar la votación
         } else {
             printf("Error: Debe agregar un proyecto de ley antes de configurar las cámaras y realizar la votación.\n");
         }
-    } else if (opcion == 3) {
+    } 
+    if (opcion == 3) {
         buscarProyecto(proceso); // Buscar un proyecto existente
-    } else if (opcion == 4) {
+    } 
+    if (opcion == 4) {
         modificarProyecto(proceso); // Modificar un proyecto existente
-    } else if (opcion == 5) {
+    } 
+    if (opcion == 5) {
         eliminarProyecto(proceso); // Eliminar un proyecto existente
-    } else if (opcion == 6) {
+    } 
+    if (opcion == 6) {
         listarProyectos(proceso); // Listar todos los proyectos
-    } else if (opcion == 7) {
+    } 
+    if (opcion == 7) {
         printf("Saliendo del sistema...\n"); // Mensaje de salida
-    } else {
+    } 
+    if (opcion < 1 || opcion > 7) {
         printf("Opción no válida. Intente nuevamente.\n"); // Mensaje si la opción no es válida
     }
 }
 
-/* Función principal para el menú */
-int main() {
-    struct ProcesoLegislativo proceso; // Estructura para el proceso legislativo
+/* Función para inicializar el proceso legislativo y manejar el menú */
+void ejecutarMenu(struct ProcesoLegislativo *proceso) {
     int opcion; // Variable para almacenar la opción seleccionada
-
-    proceso.Proyectos = NULL; // Inicializar la lista de proyectos como NULL
 
     // Bucle principal del menú
     do {
         menu(); // Mostrar el menú
         scanf("%d", &opcion); // Leer la opción seleccionada
         fflush(stdin);  // Limpiar el búfer para evitar problemas con Turbo C
-        procesarOpcion(opcion, &proceso); // Procesar la opción seleccionada
+        procesarOpcion(opcion, proceso); // Procesar la opción seleccionada
     } while (opcion != 7); // Repetir hasta que se elija salir
+}
 
+/* Función principal para el menú */
+int main() {
+    struct ProcesoLegislativo *proceso = malloc(sizeof(struct ProcesoLegislativo)); // Asignar memoria para la estructura
+    if (proceso != NULL) {
+        proceso->Proyectos = NULL; // Inicializar la lista de proyectos como NULL
+        ejecutarMenu(proceso); // Ejecutar el menú
+    }
     return 0; // Fin del programa
 }
