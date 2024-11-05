@@ -19,6 +19,8 @@ struct ProyectoLey {
     int numFirmas;                      /* Número de firmas requeridas (si es iniciativa popular) */
     int urgencia;                       /* Nivel de urgencia (1: baja, 2: media, 3: alta) */
     char fechaIngreso[11];              /* Fecha de ingreso del proyecto (DD-MM-YYYY) */
+    struct VotacionParlamentarios *votacionDiputados; /* Lista de votos en Diputados */
+    struct VotacionParlamentarios *votacionSenado;    /* Lista de votos en Senado */
     struct VotacionParlamentarios *votacion; /* Lista de votos de los parlamentarios en este proyecto */
 };
 
@@ -29,9 +31,45 @@ struct NodoArbol {
     struct ProyectoLey *proyecto;       /* Puntero al proyecto de ley */
 };
 
+/* Estructura para representar a los parlamentarios */
+struct Parlamentario { 
+    int ID;                             /* ID único del parlamentario */
+    char nombre[100];                   /* Nombre del parlamentario */
+    char partido[50];                   /* Partido político del parlamentario */
+    struct Parlamentario *siguiente;    /* Puntero al siguiente parlamentario en la lista */
+};
+
+/* Estructura para representar una cámara legislativa (Diputados o Senado) */
+struct CamaraLegislativa {
+    char tipoCamara[50];                        /* Tipo de cámara (Diputados o Senado) */
+    char nombreCamara[50];                      /* Nombre de la cámara */
+    struct ProyectoLey *proyectoActual;         /* Proyecto actualmente en discusión */
+    struct Parlamentario *parlamentarios;       /* Lista de parlamentarios en esta cámara */
+};
+
+/* Estructura para una comisión mixta que discute un proyecto de ley */
+struct ComisionMixta {
+    char nombre[100];                         /* Nombre de la comisión */
+    struct ProyectoLey *proyecto;             /* Proyecto en discusión en la comisión */
+    struct VotacionParlamentarios *votacion;  /* Resultado de votación en la comisión */
+    struct Parlamentario *parlamentarios;     /* Lista de parlamentarios en la comisión */
+};
+
+/* Estructura que almacena detalles de publicación de una ley */
+struct PublicacionEntradaVigencia {
+    struct ProyectoLey *proyecto;       /* Proyecto correspondiente */
+    char nombreLey[100];                /* Nombre de la ley */
+    char fechaPublicacion[11];          /* Fecha de publicación */
+    int vigenciaInmediata;              /* 1: inmediata, 0: con plazo */
+    struct PublicacionEntradaVigencia *siguiente, *anterior; /* Puntero al siguiente y anterior elemento en la lista */
+};
+
 /* Estructura principal que representa el proceso legislativo */
 struct ProcesoLegislativo {
     struct NodoArbol *Proyectos;        /* Árbol binario de proyectos de ley */
+    struct CamaraLegislativa *camaras[2]; /* Array de 2 cámaras: [0] para Diputados, [1] para Senado */
+    struct ComisionMixta *comisiones;   /* Lista de comisiones mixtas */
+    struct PublicacionEntradaVigencia *publicaciones;  /* Lista de publicaciones de leyes */
 };
 
 /* Función para crear un nuevo proyecto de ley */
@@ -77,12 +115,11 @@ struct NodoArbol *insertarProyecto(struct NodoArbol *raiz, struct ProyectoLey *p
     return raiz;
 }
 
-/* Función para agregar un proyecto de ley al árbol en ProcesoLegislativo */
+/* Función para agregar un proyecto de ley y asignarlo a ambas cámaras */
 void agregarProyecto(struct ProcesoLegislativo *proceso) {
     int ID, numFirmas, urgencia;
     char titulo[100], descripcion[500], actor[100], estado[100], fechaIngreso[11];
 
-    /* Se ingresan los datos para el proyecto de ley y sus respectivos subcomponentes. */
     printf("Ingrese el ID del proyecto de ley: ");
     scanf("%d", &ID);
     getchar(); // Limpiar el salto de línea residual
@@ -109,8 +146,21 @@ void agregarProyecto(struct ProcesoLegislativo *proceso) {
 
     struct ProyectoLey *proyecto = crearProyectoLey(ID, titulo, descripcion, actor, estado, numFirmas, urgencia, fechaIngreso);
     if (proyecto != NULL) {
-        proceso->Proyectos = insertarProyecto(proceso->Proyectos, proyecto);
-        printf("Proyecto de ley agregado exitosamente.\n");
+        // Asegurarse de que las cámaras estén inicializadas
+        if (proceso->camaras[0] == NULL) {
+            proceso->camaras[0] = (struct CamaraLegislativa *)malloc(sizeof(struct CamaraLegislativa));
+            strcpy(proceso->camaras[0]->tipoCamara, "Diputados");
+        }
+        if (proceso->camaras[1] == NULL) {
+            proceso->camaras[1] = (struct CamaraLegislativa *)malloc(sizeof(struct CamaraLegislativa));
+            strcpy(proceso->camaras[1]->tipoCamara, "Senado");
+        }
+
+        // Asignar el proyecto actual a ambas cámaras
+        proceso->camaras[0]->proyectoActual = proyecto;
+        proceso->camaras[1]->proyectoActual = proyecto;
+
+        printf("Proyecto de ley agregado y asignado a ambas cámaras.\n");
     } else {
         printf("Error al crear el proyecto de ley.\n");
     }
@@ -247,55 +297,171 @@ void listarProyectos(struct ProcesoLegislativo *proceso) {
     recorrerArbol(proceso->Proyectos);
 }
 
+/* Función para agregar un voto a la lista de votaciones */
+void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, int voto) {
+    struct VotacionParlamentarios *nuevoVoto = (struct VotacionParlamentarios *)malloc(sizeof(struct VotacionParlamentarios));
+    if (!nuevoVoto) return;
+    nuevoVoto->parlamentarioID = parlamentarioID;
+    nuevoVoto->voto = voto;
+    nuevoVoto->siguiente = *votacion;
+    *votacion = nuevoVoto;
+}
+
+/* Función para ingresar votos de los parlamentarios manualmente */
+void ingresarVotos(struct ProyectoLey *proyecto, const char *camara) {
+    int numParlamentarios, id, voto;
+    struct VotacionParlamentarios **votacionLista = NULL;
+
+    if (strcmp(camara, "Diputados") == 0) {
+        votacionLista = &proyecto->votacionDiputados;
+    } else if (strcmp(camara, "Senado") == 0) {
+        votacionLista = &proyecto->votacionSenado;
+    }
+
+    printf("Ingrese el número de parlamentarios en la cámara de %s: ", camara);
+    scanf("%d", &numParlamentarios);
+    getchar();
+
+    for (int i = 0; i < numParlamentarios; i++) {
+        printf("Ingrese el ID del parlamentario %d: ", i + 1);
+        scanf("%d", &id);
+        getchar();
+
+        do {
+            printf("Ingrese el voto del parlamentario %d (1: A favor, 0: En Contra, -1: Abstención): ", i + 1);
+            scanf("%d", &voto);
+            getchar();
+        } while (voto != 1 && voto != 0 && voto != -1);
+
+        agregarVoto(votacionLista, id, voto);
+    }
+}
+
+/* Función para calcular el resultado de la votación en una lista de votaciones */
+const char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
+    int aFavor = 0, enContra = 0, abstenciones = 0;
+    struct VotacionParlamentarios *actual = votacion;
+
+    while (actual != NULL) {
+        if (actual->voto == 1) aFavor++;
+        else if (actual->voto == 0) enContra++;
+        else abstenciones++;
+        actual = actual->siguiente;
+    }
+
+    if (aFavor > enContra) return "Aprobado";
+    else if (enContra > aFavor) return "Rechazado";
+    else return "Desacuerdo";
+}
+
+/* Función para configurar las cámaras y realizar votación en ambas */
+void configurarYVotar(struct ProcesoLegislativo *proceso) {
+    int tipoOrigen;
+    
+    // Solicitar al usuario que determine cuál será la cámara de origen
+    printf("Seleccione la cámara de origen:\n");
+    printf("1. Diputados\n");
+    printf("2. Senado\n");
+    printf("Ingrese su elección: ");
+    scanf("%d", &tipoOrigen);
+    getchar();  // Limpiar el buffer de entrada
+
+    struct CamaraLegislativa *camaraOrigen = NULL;
+    struct CamaraLegislativa *camaraRevision = NULL;
+
+    // Asignar las cámaras en función de la elección del usuario
+    if (tipoOrigen == 1) {
+        camaraOrigen = proceso->camaras[0];    // Diputados
+        camaraRevision = proceso->camaras[1];  // Senado
+    } else if (tipoOrigen == 2) {
+        camaraOrigen = proceso->camaras[1];    // Senado
+        camaraRevision = proceso->camaras[0];  // Diputados
+    } else {
+        printf("Selección inválida.\n");
+        return;
+    }
+
+    printf("Iniciar votación en la Cámara de %s (Origen):\n", camaraOrigen->tipoCamara);
+    ingresarVotos(camaraOrigen->proyectoActual, camaraOrigen->tipoCamara);
+    const char *resultadoOrigen = resultadoVotacion(camaraOrigen->proyectoActual->votacionDiputados);
+
+    printf("Resultado en la Cámara de %s (Origen): %s\n", camaraOrigen->tipoCamara, resultadoOrigen);
+
+    printf("\nIniciar votación en la Cámara de %s (Revisión):\n", camaraRevision->tipoCamara);
+    ingresarVotos(camaraRevision->proyectoActual, camaraRevision->tipoCamara);
+    const char *resultadoRevision = resultadoVotacion(camaraRevision->proyectoActual->votacionSenado);
+
+    printf("Resultado en la Cámara de %s (Revisión): %s\n", camaraRevision->tipoCamara, resultadoRevision);
+
+    // Determinar el resultado final
+    if (strcmp(resultadoOrigen, "Aprobado") == 0 && strcmp(resultadoRevision, "Aprobado") == 0) {
+        printf("Proyecto aprobado en ambas cámaras.\n");
+    } else if (strcmp(resultadoOrigen, "Rechazado") == 0 || strcmp(resultadoRevision, "Rechazado") == 0) {
+        printf("Proyecto rechazado en alguna de las cámaras.\n");
+    } else {
+        printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+    }
+}
+
+/* Modificar el menú principal para incluir la opción de configuración y votación */
 void menu() {
     printf("\nSistema de Proceso Legislativo de Chile\n");
     printf("1. Agregar Proyecto de Ley\n");
-    printf("2. Eliminar Proyecto de Ley\n");
+    printf("2. Configurar Cámaras y Realizar Votación\n");
     printf("3. Buscar Proyecto de Ley\n");
     printf("4. Modificar Proyecto de Ley\n");
-    printf("5. Listar todos los Proyectos de Ley\n");
-    printf("6. Salir\n");
+    printf("5. Eliminar Proyecto de Ley\n");
+    printf("6. Listar todos los Proyectos de Ley\n");
+    printf("7. Salir\n");
     printf("Seleccione una opción: ");
 }
 
+/* Procesar la opción seleccionada */
 void procesarOpcion(int opcion, struct ProcesoLegislativo *proceso) {
     if (opcion == 1) {
+        // Permitir agregar un proyecto de ley sin restricciones
         agregarProyecto(proceso);
-    } if (opcion == 2) {
-        eliminarProyecto(proceso);
-    } if (opcion == 3) {
+    } else if (opcion == 2) {
+        // Solo permitir configurar cámaras y votar si existe un proyecto actual
+        if (proceso->camaras[0] && proceso->camaras[0]->proyectoActual != NULL) {
+            configurarYVotar(proceso);
+        } else {
+            printf("Error: Debe agregar un proyecto de ley antes de configurar las cámaras y realizar la votación.\n");
+        }
+    } else if (opcion == 3) {
         buscarProyecto(proceso);
-    } if (opcion == 4) {
+    } else if (opcion == 4) {
         modificarProyecto(proceso);
-    } if (opcion == 5) {
+    } else if (opcion == 5) {
+        eliminarProyecto(proceso);
+    } else if (opcion == 6) {
         listarProyectos(proceso);
-    } if (opcion == 6) {
+    } else if (opcion == 7) {
         printf("Saliendo del sistema...\n");
-    } if (opcion < 1 || opcion > 6) {
+    } else {
         printf("Opción no válida. Intente nuevamente.\n");
     }
 }
 
-void iniciarSistema(struct ProcesoLegislativo *PL) {
+int main() {
+    struct ProcesoLegislativo *PL = (struct ProcesoLegislativo *)malloc(sizeof(struct ProcesoLegislativo));
+    if (PL == NULL) {
+        printf("Error al asignar memoria para el proceso legislativo.\n");
+        return 1;
+    }
+
+    /* Inicialización de los miembros de ProcesoLegislativo */
+    PL->Proyectos = NULL;
+    PL->camaras[0] = NULL;
+    PL->camaras[1] = NULL;
+
     int opcion;
     do {
         menu();
         scanf("%d", &opcion);
         getchar(); // Limpiar el buffer de entrada
         procesarOpcion(opcion, PL);
-    } while (opcion != 6);
-}
+    } while (opcion != 3);
 
-int main() {
-    struct ProcesoLegislativo *PL = (struct ProcesoLegislativo *)malloc(sizeof(struct ProcesoLegislativo));
-    if (PL == NULL) {
-        printf("Error al asignar memoria.\n");
-        return 1;
-    }
-
-    /* Inicialización de los miembros de ProcesoLegislativo */
-    PL->Proyectos = NULL;
-
-    iniciarSistema(PL);
     return 0;
 }
