@@ -327,34 +327,6 @@ void imprimirMensajeComision(const char *etapa, const char *resultado) {
 void manejarDesacuerdo(struct ComisionMixta *comision) {
     char resultadoComision[20]; // Variable para almacenar el resultado de la comisión
 
-    // Mostrar el inicio de la votación
-    imprimirMensajeComision("inicio", NULL);
-
-    // Ingresar los votos de la comisión mixta
-    ingresarVotos(&comision->proyecto->comisionMixta, comision->proyecto->ID);
-
-    // Calcular el resultado de la comisión
-    strcpy(resultadoComision, resultadoVotacion(comision->proyecto->comisionMixta));
-
-    // Mostrar el resultado de la comisión
-    imprimirMensajeComision("resultado", resultadoComision);
-
-    // Determinar el resultado de la comisión
-    if (strcmp(resultadoComision, "Aprobado") == 0) {
-        imprimirMensajeComision("aprobado", NULL);
-    } else if (strcmp(resultadoComision, "Rechazado") == 0) {
-        imprimirMensajeComision("rechazado", NULL);
-    } else {
-        imprimirMensajeComision("desacuerdo", NULL);
-    }
-}
-
-
-
-/* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
-/*void manejarDesacuerdo(struct ComisionMixta *comision) {
-    char resultadoComision[20]; // Variable para almacenar el resultado de la comisión
-
     printf("Iniciar votación en la Comisión Mixta:\n");
     ingresarVotos(&comision->proyecto->comisionMixta, comision->proyecto->ID);  // Usar votación para los votos de la comisión mixta
     strcpy(resultadoComision, resultadoVotacion(comision->proyecto->comisionMixta)); // Calcular el resultado
@@ -371,8 +343,7 @@ void manejarDesacuerdo(struct ComisionMixta *comision) {
             printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
         }
     }
-}*/
-
+}
 
 /* Función principal para configurar y realizar la votación */
 void configurarYVotar(struct ProcesoLegislativo *proceso) {
@@ -431,13 +402,6 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
         }
     }
 }
-
-
-
-
-
-
-
 
 /* Función para solicitar el ID del proyecto a buscar */
 void solicitarIdBusqueda(int *ID) {
@@ -537,12 +501,6 @@ void imprimirProyecto(struct ProyectoLey *proyecto) {
         printf("Proyecto no encontrado.\n");
     }
 }
-
-
-
-
-
-
 
 // Función para capturar el ID del proyecto a modificar
 void solicitarId(int *ID) {
