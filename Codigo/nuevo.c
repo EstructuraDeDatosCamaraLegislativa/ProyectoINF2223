@@ -161,8 +161,9 @@ void agregarProyecto(struct ProcesoLegislativo *proceso) {
         proceso->Proyectos = insertarProyecto(proceso->Proyectos, proyecto);
 
         // Asignar el proyecto a ambas cámaras
-        proceso->camaras[0]->proyecto = proyecto;  // Cámara de Diputados
-        proceso->camaras[1]->proyecto = proyecto;  // Cámara de Senado
+        proceso->camaras[0] = (struct CamaraLegislativa *)malloc(sizeof(struct CamaraLegislativa));
+        proceso->camaras[1] = (struct CamaraLegislativa *)malloc(sizeof(struct CamaraLegislativa));
+
     }
 }
 
