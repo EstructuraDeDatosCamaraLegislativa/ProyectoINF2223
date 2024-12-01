@@ -36,7 +36,7 @@ struct NodoArbol {
 
 /* Estructura para la tabla hash */
 struct HashTable {
-    struct ProyectoLey* proyectos[TAM_TABLA_HASH];  /* Array de punteros a proyectos */
+    struct ProyectoLey* proyectos[TAM_TABLA_HASH];  // Array de punteros a proyectos
 };
 
 /* Estructura de la Camara Legislativa */
@@ -47,12 +47,12 @@ struct CamaraLegislativa {
 
 /* Estructura de la Comisión Mixta */
 struct ComisionMixta {
-    struct ProyectoLey *proyecto;           /* Puntero al proyecto de ley */
+    struct ProyectoLey *proyecto;                       /* Puntero al proyecto de ley */
 };
 
 /* Estructura que representa todo el proceso legislativo */
 struct ProcesoLegislativo {
-    struct HashTable *ProyectosTab;              /* Puntero a la tabla hash de proyectos */
+    struct HashTable *ProyectosTab;  // Puntero a la tabla hash de proyectos
     struct NodoArbol *Proyectos;                 /* Paso 1: Iniciativa Legislativa (Árbol con proyectos de ley) */
     struct CamaraLegislativa *camaras[2];        /* Paso 2: Cámara Legislativa */
     struct ComisionMixta *comisionMixta;         /* Paso 3: Comisión Mixta */
@@ -82,72 +82,67 @@ struct ProyectoLey *crearProyectoLey(int ID, char *titulo, char *descripcion, ch
 
 /* Función para crear un nuevo nodo del árbol con un proyecto de ley */
 struct NodoArbol *crearNodoArbol(struct ProyectoLey *proyecto) {
-    struct NodoArbol *nuevoNodo = (struct NodoArbol *)malloc(sizeof(struct NodoArbol));         /* Asignar memoria para el nodo */
-    if (!nuevoNodo) return NULL;                    /* Verificar si la asignación fue exitosa */
-    nuevoNodo->proyecto = proyecto;                 /* Asignar el proyecto al nodo */
-    nuevoNodo->izq = NULL;                          /* Inicializar hijo izquierdo como NULL */
-    nuevoNodo->der = NULL;                          /* Inicializar hijo derecho como NULL */
-    return nuevoNodo;                               /* Devolver el nodo creado */
-}
-
+    struct NodoArbol *nuevoNodo = (struct NodoArbol *)malloc(sizeof(struct NodoArbol)); // Asignación de memoria para un nuevo nodo
+    if (!nuevoNodo) return NULL; // Verificar si la asignación fue exitosa
+    nuevoNodo->proyecto = proyecto; // Asignar el proyecto al nodo
+    nuevoNodo->izq = NULL; // Inicializar el hijo izquierdo como NULL
+    nuevoNodo->der = NULL; // Inicializar el hijo derecho como NULL
+    return nuevoNodo; // Devolver el nuevo nodo creado
+};
 
 /* Función para insertar un proyecto de ley en el árbol binario de búsqueda */
 struct NodoArbol *insertarProyecto(struct NodoArbol *nodo, struct ProyectoLey *proyecto) {
-    if (nodo == NULL) {                         /* Si el nodo es NULL, hemos encontrado la posición de inserción */
-        return crearNodoArbol(proyecto);        /* Crear y devolver un nuevo nodo */
+    if (nodo == NULL) { // Si el nodo es NULL, hemos encontrado la posición de inserción
+        return crearNodoArbol(proyecto); // Crear y devolver un nuevo nodo
     }
 
-    if (proyecto->ID < nodo->proyecto->ID) {                     /* Si el ID del proyecto es menor, ir a la izquierda */
-        nodo->izq = insertarProyecto(nodo->izq, proyecto);       /* Insertar en el subárbol izquierdo */
+    if (proyecto->ID < nodo->proyecto->ID) { // Si el ID del proyecto es menor, ir a la izquierda
+        nodo->izq = insertarProyecto(nodo->izq, proyecto); // Insertar recursivamente en la subárbol izquierdo
     } else {
-        if (proyecto->ID > nodo->proyecto->ID) {                     /* Si el ID del proyecto es mayor, ir a la derecha */
-            nodo->der = insertarProyecto(nodo->der, proyecto);       /* Insertar en el subárbol derecho */
-        } else {             /* Si es igual */
-            return nodo;     /* Retornar el nodo sin cambios */
+        if (proyecto->ID > nodo->proyecto->ID) { // Si el ID del proyecto es mayor, ir a la derecha
+            nodo->der = insertarProyecto(nodo->der, proyecto); // Insertar recursivamente en la subárbol derecho
+        } else { // Si es igual
+            return nodo; // Retornar el nodo sin cambios
         }
     }
-    return nodo;             /* Retorna el nodo actualizado del árbol */
+    return nodo; // Retorna el nodo del árbol
 };
-
 
 /* Función para capturar los datos del proyecto */
 void solicitarDatosProyecto(int *ID, char titulo[100], char descripcion[500], char actor[100], char estado[100], int *numFirmas, int *urgencia, char fechaIngreso[11]) {
-    
-    /* Solicitar ID del proyecto */
+    // Solicitar ID del proyecto
     printf("Ingrese el ID del proyecto de ley: ");
     scanf("%d", ID);
-    fflush(stdin);             /* Limpiar el búfer para evitar problemas con scanf */
-
-    /* Solicitar el título del proyecto */
+    fflush(stdin); // Limpiar el búfer
+    // Solicitar el título del proyecto
     printf("Ingrese el título del proyecto de ley: ");
-    scanf(" %[^\n]", titulo);  /* Leer la entrada hasta el salto de línea */
+    scanf(" %[^\n]", titulo);  // Leer hasta el salto de línea
 
-    /* Solicitar la descripción del proyecto */
+    // Solicitar la descripción del proyecto
     printf("Ingrese la descripción del proyecto de ley: ");
-    scanf(" %[^\n]", descripcion);  /* Leer la entrada hasta el salto de línea */
+    scanf(" %[^\n]", descripcion);  // Leer hasta el salto de línea
 
-    /* Solicitar el actor (quien presenta la iniciativa) */
+    // Solicitar el actor
     printf("Ingrese el actor (quien presenta la iniciativa): ");
-    scanf(" %[^\n]", actor);  /* Leer la entrada hasta el salto de línea */
+    scanf(" %[^\n]", actor);  // Leer hasta el salto de línea
 
-    /* Solicitar el estado del proyecto */
+    // Solicitar el estado del proyecto
     printf("Ingrese el estado del proyecto (Tramitacion, Promulgacion, Publicado): ");
-    scanf(" %[^\n]", estado);  /* Leer la entrada hasta el salto de línea */
+    scanf(" %[^\n]", estado);  // Leer hasta el salto de línea
 
-    /* Solicitar el número de firmas requeridas */
+    // Solicitar el número de firmas requeridas
     printf("Ingrese el número de firmas requeridas: ");
     scanf("%d", numFirmas);
-    fflush(stdin);            /* Limpiar el búfer para evitar problemas con scanf */
+    fflush(stdin); // Limpiar el búfer
 
-    /* Solicitar el nivel de urgencia */
+    // Solicitar el nivel de urgencia
     printf("Ingrese el nivel de urgencia (1: Simple, 2: Suma, 3: Discusión inmediata): ");
-    scanf("%d", urgencia);  /* Leer el nivel de urgencia */
+    scanf("%d", urgencia);  // Leer hasta el salto de línea
 
-    /* Solicitar la fecha de ingreso */
+    // Solicitar la fecha de ingreso
     printf("Ingrese la fecha de ingreso (DD-MM-YYYY): ");
-    scanf(" %[^\n]", fechaIngreso);  /* Leer la fecha de ingreso hasta el salto de línea */
+    scanf(" %[^\n]", fechaIngreso);  // Leer hasta el salto de línea
 }
-
 
 /* Función para agregar un proyecto al árbol y asignarlo a las cámaras */
 void agregarProyecto(struct ProcesoLegislativo *proceso) {
@@ -400,6 +395,10 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
     mostrarResultadosProyecto(resultadoOrigen, resultadoRevision, comision);
 }
 
+
+
+
+
 /* Función para solicitar el ID del proyecto a buscar */
 void solicitarIdBusqueda(int *ID) {
     printf("Ingrese el ID del proyecto a buscar: ");
@@ -498,6 +497,12 @@ void imprimirProyecto(struct ProyectoLey *proyecto) {
         printf("Proyecto no encontrado.\n");
     }
 }
+
+
+
+
+
+
 
 // Función para capturar el ID del proyecto a modificar
 void solicitarId(int *ID) {
