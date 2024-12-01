@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define TAM_TABLA_HASH 100  // Definimos un tamaño de 100 para la tabla hash
+#define TAM_TABLA_HASH 100  /* Definimos un tamaño de 100 para la tabla hash */
 
 /* ESTRUCTURAS */
 
@@ -53,7 +53,7 @@ struct ComisionMixta {
 
 /* Estructura que representa todo el proceso legislativo */
 struct ProcesoLegislativo {
-    struct HashTable *ProyectosTab;  // Puntero a la tabla hash de proyectos
+    struct HashTable *ProyectosTab;              /* Puntero a la tabla hash de proyectos */
     struct NodoArbol *Proyectos;                 /* Paso 1: Iniciativa Legislativa (Árbol con proyectos de ley) */
     struct CamaraLegislativa *camaras[2];        /* Paso 2: Cámara Legislativa */
     struct ComisionMixta *comisionMixta;         /* Paso 3: Comisión Mixta */
@@ -83,30 +83,30 @@ struct ProyectoLey *crearProyectoLey(int ID, char *titulo, char *descripcion, ch
 
 /* Función para crear un nuevo nodo del árbol con un proyecto de ley */
 struct NodoArbol *crearNodoArbol(struct ProyectoLey *proyecto) {
-    struct NodoArbol *nuevoNodo = (struct NodoArbol *)malloc(sizeof(struct NodoArbol)); // Asignación de memoria para un nuevo nodo
-    if (!nuevoNodo) return NULL; // Verificar si la asignación fue exitosa
-    nuevoNodo->proyecto = proyecto; // Asignar el proyecto al nodo
-    nuevoNodo->izq = NULL; // Inicializar el hijo izquierdo como NULL
-    nuevoNodo->der = NULL; // Inicializar el hijo derecho como NULL
-    return nuevoNodo; // Devolver el nuevo nodo creado
+    struct NodoArbol *nuevoNodo = (struct NodoArbol *)malloc(sizeof(struct NodoArbol));   /* Asignación de memoria para un nuevo nodo */
+    if (!nuevoNodo) return NULL;                  /* Verificar si la asignación fue exitosa */
+    nuevoNodo->proyecto = proyecto;               /* Asignar el proyecto al nodo */
+    nuevoNodo->izq = NULL;                        /* Inicializar el hijo izquierdo como NULL */
+    nuevoNodo->der = NULL;                        /* Inicializar el hijo derecho como NULL */
+    return nuevoNodo;                             /* Devolver el nuevo nodo creado */
 };
 
 /* Función para insertar un proyecto de ley en el árbol binario de búsqueda */
 struct NodoArbol *insertarProyecto(struct NodoArbol *nodo, struct ProyectoLey *proyecto) {
-    if (nodo == NULL) { // Si el nodo es NULL, hemos encontrado la posición de inserción
-        return crearNodoArbol(proyecto); // Crear y devolver un nuevo nodo
+    if (nodo == NULL) {                        /* Si el nodo es NULL, hemos encontrado la posición de inserción */
+        return crearNodoArbol(proyecto);       /* Crear y devolver un nuevo nodo */
     }
 
-    if (proyecto->ID < nodo->proyecto->ID) { // Si el ID del proyecto es menor, ir a la izquierda
-        nodo->izq = insertarProyecto(nodo->izq, proyecto); // Insertar recursivamente en la subárbol izquierdo
+    if (proyecto->ID < nodo->proyecto->ID) {                           /* Si el ID del proyecto es menor, ir a la izquierda */
+        nodo->izq = insertarProyecto(nodo->izq, proyecto);             /* Insertar recursivamente en la subárbol izquierdo */
     } else {
-        if (proyecto->ID > nodo->proyecto->ID) { // Si el ID del proyecto es mayor, ir a la derecha
-            nodo->der = insertarProyecto(nodo->der, proyecto); // Insertar recursivamente en la subárbol derecho
-        } else { // Si es igual
-            return nodo; // Retornar el nodo sin cambios
+        if (proyecto->ID > nodo->proyecto->ID) {                       /* Si el ID del proyecto es mayor, ir a la derecha */
+            nodo->der = insertarProyecto(nodo->der, proyecto);         /* Insertar recursivamente en la subárbol derecho */
+        } else {                                                       /* Si es igual */
+            return nodo;                                               /* Retornar el nodo sin cambios */
         }
     }
-    return nodo; // Retorna el nodo del árbol
+    return nodo;         /* Retorna el nodo del árbol */
 };
 
 /* Función para capturar los datos del proyecto */
