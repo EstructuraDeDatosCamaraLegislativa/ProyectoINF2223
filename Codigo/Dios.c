@@ -308,15 +308,51 @@ void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, i
     }
 }
 
+/* Función para imprimir mensajes relacionados con la Comisión Mixta */
+void imprimirMensajeComision(const char *etapa, const char *resultado) {
+    if (strcmp(etapa, "inicio") == 0) {
+        printf("Iniciar votación en la Comisión Mixta\n");
+    } else if (strcmp(etapa, "resultado") == 0 && resultado != NULL) {
+        printf("Resultado en la Comisión Mixta: %s\n", resultado);
+    } else if (strcmp(etapa, "aprobado") == 0) {
+        printf("Proyecto aprobado por la Comisión Mixta.\n");
+    } else if (strcmp(etapa, "rechazado") == 0) {
+        printf("Proyecto rechazado por la Comisión Mixta.\n");
+    } else if (strcmp(etapa, "desacuerdo") == 0) {
+        printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
+    }
+}
 
+/* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
+void manejarDesacuerdo(struct ComisionMixta *comision) {
+    char resultadoComision[20]; // Variable para almacenar el resultado de la comisión
 
+    // Mostrar el inicio de la votación
+    imprimirMensajeComision("inicio", NULL);
 
+    // Ingresar los votos de la comisión mixta
+    ingresarVotos(&comision->proyecto->comisionMixta, comision->proyecto->ID);
 
+    // Calcular el resultado de la comisión
+    strcpy(resultadoComision, resultadoVotacion(comision->proyecto->comisionMixta));
+
+    // Mostrar el resultado de la comisión
+    imprimirMensajeComision("resultado", resultadoComision);
+
+    // Determinar el resultado de la comisión
+    if (strcmp(resultadoComision, "Aprobado") == 0) {
+        imprimirMensajeComision("aprobado", NULL);
+    } else if (strcmp(resultadoComision, "Rechazado") == 0) {
+        imprimirMensajeComision("rechazado", NULL);
+    } else {
+        imprimirMensajeComision("desacuerdo", NULL);
+    }
+}
 
 
 
 /* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
-void manejarDesacuerdo(struct ComisionMixta *comision) {
+/*void manejarDesacuerdo(struct ComisionMixta *comision) {
     char resultadoComision[20]; // Variable para almacenar el resultado de la comisión
 
     printf("Iniciar votación en la Comisión Mixta:\n");
@@ -335,7 +371,7 @@ void manejarDesacuerdo(struct ComisionMixta *comision) {
             printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
         }
     }
-}
+}*/
 
 
 /* Función principal para configurar y realizar la votación */
