@@ -277,8 +277,50 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
 }
 
 
+
+
+
+
+
+// Función que maneja la entrada del usuario para seleccionar la cámara de origen
+int solicitarSeleccionCamara() {
+    int tipoOrigen;
+    printf("Seleccione la cámara de origen:\n");
+    printf("1. Diputados\n");
+    printf("2. Senado\n");
+    printf("Ingrese su elección: ");
+    scanf("%d", &tipoOrigen);
+    return tipoOrigen;
+}
+
+// Función para seleccionar la cámara de origen y asignar la revisión
+struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso,struct CamaraLegislativa **camaraRevision, char nombreCamaraOrigen[100], char nombreCamaraRevision[100]){
+    int tipoOrigen;
+    tipoOrigen = solicitarSeleccionCamara(); // Obtener la elección del usuario
+
+    if (tipoOrigen == 1) { // Diputados como origen
+        *camaraRevision = proceso->camaras[1]; // Cámara de Senado como revisión
+        strcpy(nombreCamaraOrigen, "Diputados"); // Copiar el nombre de la cámara de origen
+        strcpy(nombreCamaraRevision, "Senado");  // Copiar el nombre de la cámara de revisión
+        return proceso->camaras[0]; // Retornar la cámara de Diputados
+    } else if (tipoOrigen == 2) { // Senado como origen
+        *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
+        strcpy(nombreCamaraOrigen, "Senado");   // Copiar el nombre de la cámara de origen
+        strcpy(nombreCamaraRevision, "Diputados"); // Copiar el nombre de la cámara de revisión
+        return proceso->camaras[1]; // Retornar la cámara de Senado
+    }
+
+    // Si la selección es inválida
+    strcpy(nombreCamaraOrigen, "Desconocido");
+    strcpy(nombreCamaraRevision, "Desconocido");
+    return NULL;
+}
+
+
+
+
 /* Función para seleccionar la cámara de origen y asignar la revisión */
-struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
+/*struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
     int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
     printf("Seleccione la cámara de origen:\n");
     printf("1. Diputados\n");
@@ -303,7 +345,7 @@ struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *pro
 
     printf("Selección inválida.\n"); // Mensaje si la selección no es válida
     return NULL; // Retornar NULL en caso de error
-}
+}*/
 
 void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("\n--- Proyecto de Ley en Discusión ---\n");
