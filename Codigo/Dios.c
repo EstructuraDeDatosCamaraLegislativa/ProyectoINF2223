@@ -221,16 +221,13 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
         }
         actual = actual->siguiente; // Avanzar al siguiente voto
     }
-
     // Determinar el resultado
     if (aFavor > enContra) {
         return "Aprobado"; // Mayoría a favor
     }
-    
     if (enContra > aFavor) {
         return "Rechazado"; // Mayoría en contra
     }
-
     // Si no se cumple ninguna de las condiciones anteriores, es un empate
     return "Desacuerdo"; // Empate
 }
