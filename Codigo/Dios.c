@@ -178,9 +178,6 @@ void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, 
     *votacion = nuevoVoto;
 }
 
-
-
-
 // Función para solicitar el número de parlamentarios
 void solicitarCantParlamentario(int *numParlamentarios){
     printf("Ingrese el número de parlamentarios en la votación: ");
@@ -220,33 +217,6 @@ void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID
     }
 }
 
-
-
-
-/* Función para ingresar votos de los parlamentarios manualmente */
-/*void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID) {
-    int numParlamentarios, id, voto; // Variables para el número de parlamentarios, ID y voto
-    int i;
-
-    printf("Ingrese el número de parlamentarios en la votación: ");
-    scanf("%d", &numParlamentarios); // Leer el número de parlamentarios
-    fflush(stdin); // Limpiar el búfer
-
-    for (i = 0; i < numParlamentarios; i++) {
-        printf("Ingrese el ID del parlamentario %d: ", i + 1);
-        scanf("%d", &id); // Leer el ID del parlamentario
-        fflush(stdin); // Limpiar el búfer
-
-        do {
-            printf("Ingrese el voto del parlamentario %d (1: A favor, 0: En Contra, -1: Abstención): ", i + 1);
-            scanf("%d", &voto); // Leer el voto
-            fflush(stdin); // Limpiar el búfer
-        } while (voto != 1 && voto != 0 && voto != -1); // Validar que el voto sea correcto
-
-        agregarVoto(votacionLista, id, voto, proyectoID); // Agregar el voto a la lista
-    }
-}*/
-
 /* Función para calcular el resultado de la votación en una lista de votaciones */
 char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     int aFavor = 0, enContra = 0, abstenciones = 0; // Contadores para los resultados de la votación
@@ -276,54 +246,8 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     return "Desacuerdo"; // Empate
 }
 
-
-
-
-
-
-
-
-
-// Función que maneja la interacción con el usuario para seleccionar la cámara de origen
-void mostrarSeleccionCamaras() {
-    printf("Seleccione la cámara de origen:\n");
-    printf("1. Diputados\n");
-    printf("2. Senado\n");
-    printf("Ingrese su elección: ");
-}
-
-// Función para seleccionar la cámara de origen y asignar la revisión
-struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char *nombreCamaraOrigen, char *nombreCamaraRevision) {
-    int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
-
-    // Mostrar los mensajes y capturar la entrada del usuario
-    mostrarSeleccionCamaras();
-    scanf("%d", &tipoOrigen); // Leer la elección
-
-    // Asignar cámaras de origen y revisión según la selección
-    if (tipoOrigen == 1) {
-        *camaraRevision = proceso->camaras[1]; // Cámara de Senado como revisión
-        strcpy(nombreCamaraOrigen, "Diputados");    // Nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Senado");     // Nombre de la cámara de revisión
-        return proceso->camaras[0];           // Cámara de Diputados como origen
-    }
-
-    if (tipoOrigen == 2) {
-        *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
-        strcpy(nombreCamaraOrigen, "Senado");       // Nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Diputados");  // Nombre de la cámara de revisión
-        return proceso->camaras[1];           // Cámara de Senado como origen
-    }
-
-    // Si la selección es inválida
-    printf("Selección inválida.\n"); // Mensaje si la selección no es válida
-    return NULL; // Retornar NULL en caso de error
-}
-
-
-
 /* Función para seleccionar la cámara de origen y asignar la revisión */
-/*struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
+struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
     int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
     printf("Seleccione la cámara de origen:\n");
     printf("1. Diputados\n");
@@ -348,7 +272,7 @@ struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *pro
 
     printf("Selección inválida.\n"); // Mensaje si la selección no es válida
     return NULL; // Retornar NULL en caso de error
-}*/
+}
 
 void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("\n--- Proyecto de Ley en Discusión ---\n");
@@ -363,6 +287,10 @@ void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("----------------------------------\n");
 }
 
+/* Función para mostrar el resultado de la votación de una cámara */
+void mostrarResultadoCamara(const char *nombreCamara, const char *resultado) {
+    printf("Resultado en la Cámara de %s: %s\n", nombreCamara, resultado);
+}
 
 /* Función para realizar la votación en una cámara y almacenar el resultado */
 void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, int esDiputados) {
@@ -372,13 +300,19 @@ void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, i
     if (esDiputados) {
         ingresarVotos(&(camara->proyecto->camaraDiputados), camara->proyecto->ID);
         strcpy(resultado, resultadoVotacion(camara->proyecto->camaraDiputados));
-        printf("Resultado en la Cámara de Diputados: %s\n", resultado);
+        mostrarResultadoCamara("Diputados", resultado); // Mostrar el resultado
     } else {
         ingresarVotos(&(camara->proyecto->camaraSenado), camara->proyecto->ID);
         strcpy(resultado, resultadoVotacion(camara->proyecto->camaraSenado));
-        printf("Resultado en la Cámara de Senado: %s\n", resultado);
+        mostrarResultadoCamara("Senado", resultado); // Mostrar el resultado
     }
 }
+
+
+
+
+
+
 
 
 /* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
@@ -461,6 +395,9 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
         }
     }
 }
+
+
+
 
 
 
