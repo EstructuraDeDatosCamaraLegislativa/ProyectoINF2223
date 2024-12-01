@@ -179,8 +179,52 @@ void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, 
 }
 
 
-/* Función para ingresar votos de los parlamentarios manualmente */
+
+
+// Función para solicitar el número de parlamentarios
+void solicitarCantParlamentario(int *numParlamentarios){
+    printf("Ingrese el número de parlamentarios en la votación: ");
+    scanf("%d", numParlamentarios); // Ahora modificamos directamente la variable pasada como puntero
+}
+
+// Función que solicita el ID y el voto de un parlamentario
+void solicitarVotoParlamentario(int i, int *id, int *voto) {
+    // Solicitar el ID del parlamentario
+    printf("Ingrese el ID del parlamentario %d: ", i + 1); // `i + 1` para que el primer parlamentario sea el 1, no el 0
+    scanf("%d", id); // Leer el ID del parlamentario
+    fflush(stdin); // Limpiar el búfer
+
+    // Solicitar el voto del parlamentario
+    do {
+        printf("Ingrese el voto del parlamentario %d (1: A favor, 0: En Contra, -1: Abstención): ", i + 1);  // `i + 1` para el número del parlamentario
+        scanf("%d", voto); // Leer el voto
+        fflush(stdin); // Limpiar el búfer
+    } while (*voto != 1 && *voto != 0 && *voto != -1);  // Validar que el voto sea correcto
+}
+// Función para ingresar votos de los parlamentarios manualmente
 void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID) {
+    int numParlamentarios, id, voto; // Variables para el número de parlamentarios, ID y voto
+    int i;
+
+    // Solicitar el número de parlamentarios
+    solicitarCantParlamentario(&numParlamentarios); // Pasamos la dirección de numParlamentarios para que se modifique
+    fflush(stdin); // Limpiar el búfer
+    
+    // Solicitar los votos de cada parlamentario
+    for (i = 0; i < numParlamentarios; i++) {
+        // Llamamos a la nueva función para solicitar el ID y el voto
+        solicitarVotoParlamentario(i, &id, &voto);
+
+        // Agregar el voto a la lista
+        agregarVoto(votacionLista, id, voto, proyectoID);
+    }
+}
+
+
+
+
+/* Función para ingresar votos de los parlamentarios manualmente */
+/*void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID) {
     int numParlamentarios, id, voto; // Variables para el número de parlamentarios, ID y voto
     int i;
 
@@ -201,7 +245,7 @@ void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID
 
         agregarVoto(votacionLista, id, voto, proyectoID); // Agregar el voto a la lista
     }
-}
+}*/
 
 /* Función para calcular el resultado de la votación en una lista de votaciones */
 char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
