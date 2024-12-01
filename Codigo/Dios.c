@@ -301,7 +301,7 @@ void mostrarResultadoCamara(const char *nombreCamara, const char *resultado) {
 /* Función para realizar la votación en una cámara y almacenar el resultado */
 void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, int esDiputados) {
     // Mostrar información del proyecto que se está votando
-    mostrarProyecto(camara); 
+    mostrarProyectoVotacion(camara); 
 
     if (esDiputados) {
         ingresarVotos(&(camara->proyecto->camaraDiputados), camara->proyecto->ID);
@@ -785,3 +785,4 @@ int main() {
     }
     return 0; // Fin del programa
 }
+
