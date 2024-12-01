@@ -282,37 +282,43 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
 
 
 
-// Función que maneja la selección de la cámara de origen
-void seleccionarCamaras(int *tipoOrigen) {
+
+
+// Función que maneja la interacción con el usuario para seleccionar la cámara de origen
+void mostrarSeleccionCamaras() {
     printf("Seleccione la cámara de origen:\n");
     printf("1. Diputados\n");
     printf("2. Senado\n");
     printf("Ingrese su elección: ");
-    scanf("%d", tipoOrigen); // Leer la elección y almacenar directamente en la variable
 }
 
 // Función para seleccionar la cámara de origen y asignar la revisión
-struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso,struct CamaraLegislativa **camaraRevision, char nombreCamaraOrigen[100], char nombreCamaraRevision[100]){
-    int tipoOrigen;
-    seleccionarCamaras(&tipoOrigen);
-    if (tipoOrigen == 1) { // Diputados como origen
+struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char *nombreCamaraOrigen, char *nombreCamaraRevision) {
+    int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
+
+    // Mostrar los mensajes y capturar la entrada del usuario
+    mostrarSeleccionCamaras();
+    scanf("%d", &tipoOrigen); // Leer la elección
+
+    // Asignar cámaras de origen y revisión según la selección
+    if (tipoOrigen == 1) {
         *camaraRevision = proceso->camaras[1]; // Cámara de Senado como revisión
-        strcpy(nombreCamaraOrigen, "Diputados"); // Copiar el nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Senado");  // Copiar el nombre de la cámara de revisión
-        return proceso->camaras[0]; // Retornar la cámara de Diputados
-    } else if (tipoOrigen == 2) { // Senado como origen
+        strcpy(nombreCamaraOrigen, "Diputados");    // Nombre de la cámara de origen
+        strcpy(nombreCamaraRevision, "Senado");     // Nombre de la cámara de revisión
+        return proceso->camaras[0];           // Cámara de Diputados como origen
+    }
+
+    if (tipoOrigen == 2) {
         *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
-        strcpy(nombreCamaraOrigen, "Senado");   // Copiar el nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Diputados"); // Copiar el nombre de la cámara de revisión
-        return proceso->camaras[1]; // Retornar la cámara de Senado
+        strcpy(nombreCamaraOrigen, "Senado");       // Nombre de la cámara de origen
+        strcpy(nombreCamaraRevision, "Diputados");  // Nombre de la cámara de revisión
+        return proceso->camaras[1];           // Cámara de Senado como origen
     }
 
     // Si la selección es inválida
-    strcpy(nombreCamaraOrigen, "Desconocido");
-    strcpy(nombreCamaraRevision, "Desconocido");
-    return NULL;
+    printf("Selección inválida.\n"); // Mensaje si la selección no es válida
+    return NULL; // Retornar NULL en caso de error
 }
-
 
 
 
