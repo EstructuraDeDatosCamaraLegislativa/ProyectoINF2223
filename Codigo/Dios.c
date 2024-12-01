@@ -179,40 +179,27 @@ void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, 
 }
 
 
-// Función para solicitar el número de parlamentarios
-void solicitarCantParlamentario(int *numParlamentarios){
-    printf("Ingrese el número de parlamentarios en la votación: ");
-    scanf("%d", numParlamentarios); // Ahora modificamos directamente la variable pasada como puntero
-}
-
-// Función que solicita el ID y el voto de un parlamentario
-void solicitarVotoParlamentario(int i, int *id, int *voto) {
-    // Solicitar el ID del parlamentario
-    printf("Ingrese el ID del parlamentario %d: ", i + 1); // `i + 1` para que el primer parlamentario sea el 1, no el 0
-    scanf("%d", id); // Leer el ID del parlamentario
-
-    // Solicitar el voto del parlamentario
-    do {
-        printf("Ingrese el voto del parlamentario %d (1: A favor, 0: En Contra, -1: Abstención): ", i + 1);  // `i + 1` para el número del parlamentario
-        scanf("%d", voto); // Leer el voto
-    } while (*voto != 1 && *voto != 0 && *voto != -1);  // Validar que el voto sea correcto
-}
-
-// Función para ingresar votos de los parlamentarios manualmente
-void ingresarVotos(struct VotacionParlamentarios **votacionLista,  int proyectoID) {
+/* Función para ingresar votos de los parlamentarios manualmente */
+void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID) {
     int numParlamentarios, id, voto; // Variables para el número de parlamentarios, ID y voto
     int i;
 
-    // Solicitar el número de parlamentarios
-    solicitarCantParlamentario(&numParlamentarios); // Pasamos la dirección de numParlamentarios para que se modifique
+    printf("Ingrese el número de parlamentarios en la votación: ");
+    scanf("%d", &numParlamentarios); // Leer el número de parlamentarios
+    fflush(stdin); // Limpiar el búfer
 
-    // Solicitar los votos de cada parlamentario
     for (i = 0; i < numParlamentarios; i++) {
-        // Llamamos a la nueva función para solicitar el ID y el voto
-        solicitarVotoParlamentario(i, &id, &voto);
+        printf("Ingrese el ID del parlamentario %d: ", i + 1);
+        scanf("%d", &id); // Leer el ID del parlamentario
+        fflush(stdin); // Limpiar el búfer
 
-        // Agregar el voto a la lista
-        agregarVoto(votacionLista, id, voto, proyectoID);
+        do {
+            printf("Ingrese el voto del parlamentario %d (1: A favor, 0: En Contra, -1: Abstención): ", i + 1);
+            scanf("%d", &voto); // Leer el voto
+            fflush(stdin); // Limpiar el búfer
+        } while (voto != 1 && voto != 0 && voto != -1); // Validar que el voto sea correcto
+
+        agregarVoto(votacionLista, id, voto, proyectoID); // Agregar el voto a la lista
     }
 }
 
@@ -248,38 +235,35 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     return "Desacuerdo"; // Empate
 }
 
-// Función que maneja la entrada del usuario para seleccionar la cámara de origen
-int solicitarSeleccionCamara() {
-    int tipoOrigen;
+
+/* Función para seleccionar la cámara de origen y asignar la revisión */
+struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
+    int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
     printf("Seleccione la cámara de origen:\n");
     printf("1. Diputados\n");
     printf("2. Senado\n");
     printf("Ingrese su elección: ");
-    scanf("%d", &tipoOrigen);
-    return tipoOrigen;
-}
+    scanf("%d", &tipoOrigen); // Leer la elección
 
-// Función para seleccionar la cámara de origen y asignar la revisión
-struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso,struct CamaraLegislativa **camaraRevision, char nombreCamaraOrigen[100], char nombreCamaraRevision[100]){
-    int tipoOrigen = solicitarSeleccionCamara(); // Obtener la elección del usuario
-
-    if (tipoOrigen == 1) { // Diputados como origen
+    // Asignar cámaras de origen y revisión según la selección
+    if (tipoOrigen == 1) {
         *camaraRevision = proceso->camaras[1]; // Cámara de Senado como revisión
-        strcpy(nombreCamaraOrigen, "Diputados"); // Copiar el nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Senado");  // Copiar el nombre de la cámara de revisión
-        return proceso->camaras[0]; // Retornar la cámara de Diputados
-    } else if (tipoOrigen == 2) { // Senado como origen
-        *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
-        strcpy(nombreCamaraOrigen, "Senado");   // Copiar el nombre de la cámara de origen
-        strcpy(nombreCamaraRevision, "Diputados"); // Copiar el nombre de la cámara de revisión
-        return proceso->camaras[1]; // Retornar la cámara de Senado
+        *nombreCamaraOrigen = "Diputados";    // Nombre de la cámara de origen
+        *nombreCamaraRevision = "Senado";     // Nombre de la cámara de revisión
+        return proceso->camaras[0];           // Cámara de Diputados como origen
     }
 
-    // Si la selección es inválida
-    strcpy(nombreCamaraOrigen, "Desconocido");
-    strcpy(nombreCamaraRevision, "Desconocido");
-    return NULL;
+    if (tipoOrigen == 2) {
+        *camaraRevision = proceso->camaras[0]; // Cámara de Diputados como revisión
+        *nombreCamaraOrigen = "Senado";       // Nombre de la cámara de origen
+        *nombreCamaraRevision = "Diputados";  // Nombre de la cámara de revisión
+        return proceso->camaras[1];           // Cámara de Senado como origen
+    }
+
+    printf("Selección inválida.\n"); // Mensaje si la selección no es válida
+    return NULL; // Retornar NULL en caso de error
 }
+
 void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("\n--- Proyecto de Ley en Discusión ---\n");
     printf("ID: %d\n", camara->proyecto->ID);
@@ -293,10 +277,6 @@ void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("----------------------------------\n");
 }
 
-/* Función para mostrar el resultado de la votación de una cámara */
-void mostrarResultadoCamara(const char *nombreCamara, const char *resultado) {
-    printf("Resultado en la Cámara de %s: %s\n", nombreCamara, resultado);
-}
 
 /* Función para realizar la votación en una cámara y almacenar el resultado */
 void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, int esDiputados) {
@@ -306,121 +286,94 @@ void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, i
     if (esDiputados) {
         ingresarVotos(&(camara->proyecto->camaraDiputados), camara->proyecto->ID);
         strcpy(resultado, resultadoVotacion(camara->proyecto->camaraDiputados));
-        mostrarResultadoCamara("Diputados", resultado); // Mostrar el resultado
+        printf("Resultado en la Cámara de Diputados: %s\n", resultado);
     } else {
         ingresarVotos(&(camara->proyecto->camaraSenado), camara->proyecto->ID);
         strcpy(resultado, resultadoVotacion(camara->proyecto->camaraSenado));
-        mostrarResultadoCamara("Senado", resultado); // Mostrar el resultado
+        printf("Resultado en la Cámara de Senado: %s\n", resultado);
     }
 }
 
-
-/* Función para imprimir mensajes relacionados con la Comisión Mixta */
-void imprimirMensajeComision(const char *etapa, const char *resultado) {
-    if (strcmp(etapa, "inicio") == 0) {
-        printf("Iniciar votación en la Comisión Mixta\n");
-    } else if (strcmp(etapa, "resultado") == 0 && resultado != NULL) {
-        printf("Resultado en la Comisión Mixta: %s\n", resultado);
-    } else if (strcmp(etapa, "aprobado") == 0) {
-        printf("Proyecto aprobado por la Comisión Mixta.\n");
-    } else if (strcmp(etapa, "rechazado") == 0) {
-        printf("Proyecto rechazado por la Comisión Mixta.\n");
-    } else if (strcmp(etapa, "desacuerdo") == 0) {
-        printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
-    }
-}
 
 /* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
 void manejarDesacuerdo(struct ComisionMixta *comision) {
     char resultadoComision[20]; // Variable para almacenar el resultado de la comisión
 
-    // Mostrar el inicio de la votación
-    imprimirMensajeComision("inicio", NULL);
+    printf("Iniciar votación en la Comisión Mixta:\n");
+    ingresarVotos(&comision->proyecto->comisionMixta, comision->proyecto->ID);  // Usar votación para los votos de la comisión mixta
+    strcpy(resultadoComision, resultadoVotacion(comision->proyecto->comisionMixta)); // Calcular el resultado
 
-    // Ingresar los votos de la comisión mixta
-    ingresarVotos(&comision->proyecto->comisionMixta, comision->proyecto->ID);
-
-    // Calcular el resultado de la comisión
-    strcpy(resultadoComision, resultadoVotacion(comision->proyecto->comisionMixta));
-
-    // Mostrar el resultado de la comisión
-    imprimirMensajeComision("resultado", resultadoComision);
+    printf("Resultado en la Comisión Mixta: %s\n", resultadoComision); // Mostrar el resultado
 
     // Determinar el resultado de la comisión
     if (strcmp(resultadoComision, "Aprobado") == 0) {
-        imprimirMensajeComision("aprobado", NULL);
-    } else if (strcmp(resultadoComision, "Rechazado") == 0) {
-        imprimirMensajeComision("rechazado", NULL);
+        printf("Proyecto aprobado por la Comisión Mixta.\n");
     } else {
-        imprimirMensajeComision("desacuerdo", NULL);
+        if (strcmp(resultadoComision, "Rechazado") == 0) {
+            printf("Proyecto rechazado por la Comisión Mixta.\n");
+        } else {
+            printf("La Comisión Mixta no pudo llegar a un acuerdo.\n");
+        }
     }
 }
 
-/* Función para mostrar los resultados de las votaciones en las cámaras */
-void mostrarResultadosProyecto(const char *resultadoOrigen, const char *resultadoRevision, struct ComisionMixta *comision) {
+
+/* Función principal para configurar y realizar la votación */
+void configurarYVotar(struct ProcesoLegislativo *proceso) {
+    char resultadoOrigen[20], resultadoRevision[20]; // Variables para almacenar los resultados
+    struct CamaraLegislativa *camaraOrigen = NULL; // Puntero para la cámara de origen
+    struct CamaraLegislativa *camaraRevision = NULL; // Puntero para la cámara de revisión
+    struct ComisionMixta *comision = NULL; // Puntero para la comisión mixta
+    char *nombreCamaraOrigen, *nombreCamaraRevision; // Variables para los nombres de las cámaras
+    
+    // Verificar si hay un proyecto disponible
+    if (proceso->Proyectos == NULL) {
+        printf("No hay un proyecto disponible para votar.\n");
+        return; // Salir de la función si no hay proyecto
+    }
+    
+    camaraOrigen = seleccionarCamaraOrigen(proceso, &camaraRevision, &nombreCamaraOrigen, &nombreCamaraRevision); // Seleccionar la cámara de origen
+    if (camaraOrigen == NULL) { // Si hay un error en la selección
+        printf("Selección inválida de cámara.\n");
+        return; // Salir de la función
+    }
+
+    // Imprimir el nombre de la cámara de origen y realizar la votación
+    printf("Iniciar votación en la Cámara de %s (Origen):\n", nombreCamaraOrigen);
+    realizarVotacionCamara(camaraOrigen, resultadoOrigen, strcmp(nombreCamaraOrigen, "Diputados") == 0 ? 1 : 0); // Realizar la votación
+
+    // Imprimir el nombre de la cámara de revisión y realizar la votación
+    printf("\nIniciar votación en la Cámara de %s (Revisión):\n", nombreCamaraRevision);
+    realizarVotacionCamara(camaraRevision, resultadoRevision, strcmp(nombreCamaraRevision, "Diputados") == 0 ? 1 : 0); // Realizar la votación
+
+    // Evaluar los resultados de las votaciones
     if (strcmp(resultadoOrigen, "Aprobado") == 0) {
         if (strcmp(resultadoRevision, "Aprobado") == 0) {
             printf("Proyecto aprobado en ambas cámaras.\n");
         } else {
             printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+            comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
             if (comision != NULL) {
                 manejarDesacuerdo(comision); // Manejar el desacuerdo
-                free(comision);             // Liberar memoria
             } else {
-                printf("Error al asignar memoria para la comisión mixta.\n");
+                printf("Error al asignar memoria para la comisión mixta.\n"); // Mensaje de error
             }
         }
-    } else if (strcmp(resultadoOrigen, "Rechazado") == 0) {
-        if (strcmp(resultadoRevision, "Rechazado") == 0) {
-            printf("Proyecto rechazado en ambas cámaras.\n");
-        } else {
-            printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
-            if (comision != NULL) {
-                manejarDesacuerdo(comision); // Manejar el desacuerdo
-                free(comision);             // Liberar memoria
+    } else {
+        if (strcmp(resultadoOrigen, "Rechazado") == 0) {
+            if (strcmp(resultadoRevision, "Rechazado") == 0) {
+                printf("Proyecto rechazado en ambas cámaras.\n");
             } else {
-                printf("Error al asignar memoria para la comisión mixta.\n");
+                printf("Desacuerdo entre las cámaras, se requiere intervención de una comisión mixta.\n");
+                comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
+                if (comision != NULL) {
+                    manejarDesacuerdo(comision); // Manejar el desacuerdo
+                } else {
+                    printf("Error al asignar memoria para la comisión mixta.\n"); // Mensaje de error
+                }
             }
         }
     }
-}
-
-void mostrarInicioVotacion(const char nombreCamara[100], const char tipo[20]) {
-    printf("Iniciar votación en la Cámara de %s (%s):\n", nombreCamara, tipo);
-}
-
-/* Función principal para configurar y realizar la votación */
-void configurarYVotar(struct ProcesoLegislativo *proceso) {
-    char resultadoOrigen[20], resultadoRevision[20];       // Variables para almacenar los resultados
-    char nombreCamaraOrigen[100], nombreCamaraRevision[100]; // Variables para los nombres de las cámaras
-    struct CamaraLegislativa *camaraOrigen = NULL;         // Puntero para la cámara de origen
-    struct CamaraLegislativa *camaraRevision = NULL;       // Puntero para la cámara de revisión
-    struct ComisionMixta *comision = NULL;                 // Puntero para la comisión mixta
-    // Verificar si hay un proyecto disponible
-  
-    if (proceso->Proyectos == NULL) {
-        printf("No hay un proyecto disponible para votar.\n");
-        return; // Salir de la función si no hay proyecto
-    }
-  
-    // Seleccionar la cámara de origen
-    camaraOrigen = seleccionarCamaraOrigen(proceso, &camaraRevision, nombreCamaraOrigen, nombreCamaraRevision);
-    if (camaraOrigen == NULL) { // Si hay un error en la selección
-        return; // Salir de la función
-    }
-
-    // Mostrar el nombre de la cámara de origen y realizar la votación
-    mostrarInicioVotacion(nombreCamaraOrigen, "Origen");
-    realizarVotacionCamara(camaraOrigen, resultadoOrigen, strcmp(nombreCamaraOrigen, "Diputados") == 0 ? 1 : 0);
-
-    // Mostrar el nombre de la cámara de revisión y realizar la votación
-    printf("\n");
-    mostrarInicioVotacion(nombreCamaraRevision, "Revisión");
-    realizarVotacionCamara(camaraRevision, resultadoRevision, strcmp(nombreCamaraRevision, "Diputados") == 0 ? 1 : 0);
-
-    // Mostrar los resultados finales
-    comision = (struct ComisionMixta *)malloc(sizeof(struct ComisionMixta)); // Asignar memoria para la comisión
-    mostrarResultadosProyecto(resultadoOrigen, resultadoRevision, comision);
 }
 
 
