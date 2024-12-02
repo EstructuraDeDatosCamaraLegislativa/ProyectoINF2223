@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define TAM_TABLA_HASH 100  /* Definimos un tamaño de 100 para la tabla hash */
 
 /* ESTRUCTURAS */
 
@@ -33,11 +32,6 @@ struct NodoArbol {
     struct NodoArbol *izq;              /* Puntero al hijo izquierdo */
     struct NodoArbol *der;              /* Puntero al hijo derecho */
     struct ProyectoLey *proyecto;       /* Puntero al proyecto de ley almacenado en este nodo */
-};
-
-/* Estructura para la tabla hash */
-struct HashTable {
-    struct ProyectoLey* proyectos[TAM_TABLA_HASH];  // Array de punteros a proyectos
 };
 
 /* Estructura de la Camara Legislativa */
