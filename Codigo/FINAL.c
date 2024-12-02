@@ -533,40 +533,40 @@ struct NodoArbol* encontrarMinimo(struct NodoArbol* nodo) {
 }
 
 // Función para eliminar un nodo con un proyecto específico del árbol binario
-struct NodoArbol* eliminarNodoProyecto(struct NodoArbol* raiz, int ID, int *eliminado) {
+struct NodoArbol* eliminarNodoProyecto(struct NodoArbol* nodo, int ID, int *eliminado) {
     struct NodoArbol* temp; // Declaración de un puntero temporal para manejar nodos
 
     // Verifica si la raíz es nula, lo que significa que no se encontró el proyecto
-    if (raiz == NULL) {
+    if (nodo == NULL) {
         *eliminado = 0; // Indica que no se encontró el proyecto
-        return raiz; // Retorna nulo
+        return nodo; // Retorna nulo
     }
 
     // Compara el ID para decidir si buscar en el subárbol izquierdo o derecho
-    if (ID < raiz->proyecto->ID) {
-        raiz->izq = eliminarNodoProyecto(raiz->izq, ID, eliminado); // Busca en el subárbol izquierdo
-    } else if (ID > raiz->proyecto->ID) {
-        raiz->der = eliminarNodoProyecto(raiz->der, ID, eliminado); // Busca en el subárbol derecho
+    if (ID < nodo->proyecto->ID) {
+        nodo->izq = eliminarNodoProyecto(nodo->izq, ID, eliminado); // Busca en el subárbol izquierdo
+    } else if (ID > nodo->proyecto->ID) {
+        nodo->der = eliminarNodoProyecto(nodo->der, ID, eliminado); // Busca en el subárbol derecho
     } else {
         // Proyecto encontrado
         *eliminado = 1; // Marca que se encontró y se debe eliminar
 
         // Caso cuando el nodo tiene un solo hijo o ningún hijo
-        if (raiz->izq == NULL) {
-            temp = raiz->der; // Asigna el hijo derecho
-            free(raiz); // Liberar la memoria del nodo eliminado
+        if (nodo->izq == NULL) {
+            temp = nodo->der; // Asigna el hijo derecho
+            free(nodo); // Liberar la memoria del nodo eliminado
             return temp; // Retorna el hijo derecho
         }
-        if (raiz->der == NULL) {
-            temp = raiz->izq; // Asigna el hijo izquierdo
-            free(raiz);
+        if (nodo->der == NULL) {
+            temp = nodo->izq; // Asigna el hijo izquierdo
+            free(nodo);
             return temp; // Retorna el hijo izquierdo
         }
 
         // Nodo con dos hijos: buscar el sucesor en orden
         temp = encontrarMinimo(raiz->der); // Encuentra el nodo mínimo en el subárbol derecho
-        raiz->proyecto = temp->proyecto; // Copia el proyecto del nodo mínimo al nodo actual
-        raiz->der = eliminarNodoProyecto(raiz->der, temp->proyecto->ID, eliminado); // Elimina el sucesor encontrado
+        nodo->proyecto = temp->proyecto; // Copia el proyecto del nodo mínimo al nodo actual
+        nodo->der = eliminarNodoProyecto(nodo->der, temp->proyecto->ID, eliminado); // Elimina el sucesor encontrado
     }
 
     return raiz; // Retorna la raíz del árbol (o subárbol) modificado
