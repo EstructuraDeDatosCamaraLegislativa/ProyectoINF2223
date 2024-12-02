@@ -161,6 +161,7 @@ void agregarProyecto(struct ProcesoLegislativo *proceso) {
     }
 }
 
+/* FUNCIONES CAMARAS */
 /* Función para agregar un voto a la lista de votaciones */
 void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, int voto, int proyectoID) {
     struct VotacionParlamentarios *nuevoVoto = (struct VotacionParlamentarios *)malloc(sizeof(struct VotacionParlamentarios));
@@ -171,7 +172,6 @@ void agregarVoto(struct VotacionParlamentarios **votacion, int parlamentarioID, 
     nuevoVoto->siguiente = *votacion;
     *votacion = nuevoVoto;
 }
-
 
 /* Función para ingresar votos de los parlamentarios manualmente */
 void ingresarVotos(struct VotacionParlamentarios **votacionLista, int proyectoID) {
@@ -229,7 +229,6 @@ char* resultadoVotacion(struct VotacionParlamentarios *votacion) {
     return "Desacuerdo"; // Empate
 }
 
-
 /* Función para seleccionar la cámara de origen y asignar la revisión */
 struct CamaraLegislativa* seleccionarCamaraOrigen(struct ProcesoLegislativo *proceso, struct CamaraLegislativa **camaraRevision, char **nombreCamaraOrigen, char **nombreCamaraRevision) {
     int tipoOrigen; // Variable para almacenar la selección de la cámara de origen
@@ -271,7 +270,6 @@ void mostrarProyectoVotacion(struct CamaraLegislativa *camara) {
     printf("----------------------------------\n");
 }
 
-
 /* Función para realizar la votación en una cámara y almacenar el resultado */
 void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, int esDiputados) {
     // Mostrar información del proyecto que se está votando
@@ -287,7 +285,6 @@ void realizarVotacionCamara(struct CamaraLegislativa *camara, char *resultado, i
         printf("Resultado en la Cámara de Senado: %s\n", resultado);
     }
 }
-
 
 /* Función para manejar el desacuerdo entre cámaras mediante una comisión mixta */
 void manejarDesacuerdo(struct ComisionMixta *comision) {
@@ -310,7 +307,6 @@ void manejarDesacuerdo(struct ComisionMixta *comision) {
         }
     }
 }
-
 
 /* Función principal para configurar y realizar la votación */
 void configurarYVotar(struct ProcesoLegislativo *proceso) {
@@ -370,10 +366,7 @@ void configurarYVotar(struct ProcesoLegislativo *proceso) {
     }
 }
 
-
-
-
-
+/* FUNCIONES BUSQUEDA */
 /* Función para solicitar el ID del proyecto a buscar */
 void solicitarIdBusqueda(int *ID) {
     printf("Ingrese el ID del proyecto a buscar: ");
@@ -419,7 +412,6 @@ struct ProyectoLey* buscarProyectoPorID(struct NodoArbol *nodo, int ID) {
     return buscarProyectoEnArreglo(arreglo, tamano, ID);
 }
 
-
 // Función para imprimir un proyecto
 void imprimirProyecto(struct ProyectoLey *proyecto) {
     if (proyecto != NULL) {
@@ -436,12 +428,7 @@ void imprimirProyecto(struct ProyectoLey *proyecto) {
     }
 }
 
-
-
-
-
-
-
+/* FUNCIONES MODIFICAR*/
 // Función para capturar el ID del proyecto a modificar
 void solicitarId(int *ID) {
     printf("Ingrese el ID del proyecto a modificar: ");
@@ -481,9 +468,7 @@ void modificarProyecto(struct ProcesoLegislativo *proceso) {
     }
 }
 
-
-
-
+/* FUNCIONES ELIMINAR */
 // Función para encontrar el nodo mínimo en el subárbol derecho
 struct NodoArbol* encontrarMinimo(struct NodoArbol* nodo) {
     struct NodoArbol* actual = nodo; // Se inicializa un puntero para recorrer el nodo
@@ -579,6 +564,7 @@ void mostrarProyecto(struct ProyectoLey* proyecto) {
     }
 }
 
+/* FUNCIONES LISTAR */
 // Algoritmo de burbuja mejorado para ordenar proyectos por ID
 void burbujaMejorada(struct ProyectoLey **arreglo, int tamano) {
     int i, j, intercambiado;
@@ -622,6 +608,7 @@ void listarProyectos(struct NodoArbol* raiz) {
     }
 }
 
+/* FUNCIONES MENU */
 /* Función para mostrar el menú principal */
 void menu() {
     printf("\nSistema de Proceso Legislativo de Chile\n");
@@ -686,6 +673,7 @@ void ejecutarMenu(struct ProcesoLegislativo *proceso) {
     } while (opcion != 7); // Repetir hasta que se elija salir
 }
 
+/* MAIN */
 /* Función principal para el menú */
 int main() {
     struct ProcesoLegislativo *proceso = malloc(sizeof(struct ProcesoLegislativo)); // Asignar memoria para la estructura
