@@ -527,7 +527,7 @@ void procesarOpcion(int opcion, struct ProcesoLegislativo *proceso) {
     } 
     if (opcion == 2) {
         // Solo permitir configurar cámaras y votar si existe un proyecto actual
-        if (proceso->camaras[0] && proceso->camaras[0]->proyectoActual != NULL) {
+        if (proceso->camaras[0] && proceso->camaras[0]->proyecto != NULL) {
             configurarYVotar(proceso); // Configurar cámaras y realizar la votación
         } else {
             printf("Error: Debe agregar un proyecto de ley antes de configurar las cámaras y realizar la votación.\n");
